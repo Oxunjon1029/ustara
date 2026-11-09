@@ -1,0 +1,39 @@
+{
+  "common": { "signOut": "Выйти", "language": "Язык", "comingSoon": "Скоро", "soon": "Появится на следующем этапе" },
+  "auth": {
+    "heroTitle": "Запись к барберу за пару секунд",
+    "heroBody": "Выберите услугу, забронируйте удобное время и оплатите онлайн.",
+    "telegram": "Войти через Telegram",
+    "telegramHint": "Без SMS. Номер телефона подтверждается через Telegram.",
+    "orPassword": "или с паролем",
+    "login": "Телефон или имя пользователя",
+    "password": "Пароль",
+    "showPassword": "Показать пароль",
+    "hidePassword": "Скрыть пароль",
+    "forgot": "Забыли пароль?",
+    "signIn": "Войти",
+    "noAccount": "Нет аккаунта?",
+    "signUp": "Регистрация",
+    "invalid": "Неверный логин или пароль",
+    "demoTitle": "Демо-режим (Supabase не подключён)",
+    "demoAs": "Войти как {{role}}"
+  },
+  "roles": { "client": "Клиент", "barber": "Барбер", "admin": "Админ" },
+  "tabs": {
+    "home": "Главная", "bookings": "Мои записи", "profile": "Профиль",
+    "today": "Сегодня", "calendar": "Календарь", "earnings": "Доход",
+    "dashboard": "Панель", "schedule": "График", "manage": "Управление", "reports": "Отчёты"
+  },
+  "client": {
+    "hello": "Привет,",
+    "notifications": "Уведомления",
+    "nextVisit": "Следующий визит",
+    "noVisit": "Пока нет записей",
+    "confirmed": "Подтверждено",
+    "bookNow": "Записаться",
+    "services": "Услуги",
+    "all": "Все",
+    "barbers": "Барберы",
+    "minutes": "{{count}} мин"
+  }
+}

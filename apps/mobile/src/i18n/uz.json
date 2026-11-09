@@ -1,0 +1,39 @@
+{
+  "common": { "signOut": "Chiqish", "language": "Til", "comingSoon": "Tez orada", "soon": "Keyingi bosqichda qoʻshiladi" },
+  "auth": {
+    "heroTitle": "Sartaroshga navbat bir necha soniyada",
+    "heroBody": "Xizmatni tanlang, qulay vaqtni band qiling va onlayn toʻlang.",
+    "telegram": "Telegram orqali kirish",
+    "telegramHint": "SMS kerak emas. Telefon raqamingiz Telegram orqali tasdiqlanadi.",
+    "orPassword": "yoki parol bilan",
+    "login": "Telefon yoki foydalanuvchi nomi",
+    "password": "Parol",
+    "showPassword": "Parolni koʻrsatish",
+    "hidePassword": "Parolni yashirish",
+    "forgot": "Parolni unutdingizmi?",
+    "signIn": "Kirish",
+    "noAccount": "Hisobingiz yoʻqmi?",
+    "signUp": "Roʻyxatdan oʻtish",
+    "invalid": "Login yoki parol notoʻgʻri",
+    "demoTitle": "Demo rejim (Supabase ulanmagan)",
+    "demoAs": "{{role}} sifatida kirish"
+  },
+  "roles": { "client": "Mijoz", "barber": "Sartarosh", "admin": "Admin" },
+  "tabs": {
+    "home": "Asosiy", "bookings": "Bronlarim", "profile": "Profil",
+    "today": "Bugun", "calendar": "Kalendar", "earnings": "Daromad",
+    "dashboard": "Panel", "schedule": "Jadval", "manage": "Boshqaruv", "reports": "Hisobotlar"
+  },
+  "client": {
+    "hello": "Salom,",
+    "notifications": "Bildirishnomalar",
+    "nextVisit": "Keyingi tashrif",
+    "noVisit": "Hozircha bron yoʻq",
+    "confirmed": "Tasdiqlangan",
+    "bookNow": "Navbat olish",
+    "services": "Xizmatlar",
+    "all": "Barchasi",
+    "barbers": "Sartaroshlar",
+    "minutes": "{{count}} daqiqa"
+  }
+}

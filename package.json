@@ -1,0 +1,10 @@
+{
+  "name": "ustara",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "test": "npm test -w @ustara/shared",
+    "typecheck": "npm run typecheck -w @ustara/shared && npm run typecheck -w mobile",
+    "mobile": "npm start -w mobile"
+  }
+}

@@ -27,6 +27,9 @@ function RootStack() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
+      {/* Reachable signed in or out: Telegram sign-in/link/reset and the new-password step. */}
+      <Stack.Screen name="telegram-wait" />
+      <Stack.Screen name="reset-password" />
       <Stack.Protected guard={!role}>
         <Stack.Screen name="(auth)" />
       </Stack.Protected>

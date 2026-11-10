@@ -28,13 +28,33 @@ cp apps/mobile/.env.example apps/mobile/.env   # fill in the anon key printed by
 ```
 
 Seeded accounts (password `password12`): `admin`, `jasur`, `bekzod`, `sardor` (barbers), `aziz` (client).
-Milestone 1 signs in by username only; phone login, rate limiting and lockout come with the
-`auth-password` function in Milestone 2.
+Sign in with the username or the phone number.
+
+## Authentication (Milestone 2)
+
+Sign-in is password (phone or username) or Telegram; recovery is via the Telegram bot. No SMS or email.
+
+| Edge Function | Purpose |
+| --- | --- |
+| `auth-password` | Sign-up and login. 5 failures per 15 min per account or IP → 15-min lock, Telegram alert |
+| `telegram-token` | One-time deep links (`login`, `link`, `reset`), polling, and setting the new password |
+| `telegram-webhook` | The bot: `/start <token>`, share-contact phone check, Confirm/Cancel buttons |
+
+One-time setup on the linked project:
+
+```sh
+npx supabase db push --remote          # new migrations
+npx supabase functions deploy          # all three functions
+node scripts/setup-telegram.mjs        # asks for the BotFather token; sets secrets + webhook
+```
+
+Then in the Supabase dashboard turn off **Authentication → Sign In / Providers → Allow new users to sign up**:
+accounts are created only by the functions above.
 
 ## Milestones
 
 1. **Foundations** ✅ monorepo, i18n, theme, Sentry, schema + RLS + seed, shared logic with tests, role gate
-2. Authentication: password + Telegram bot sign-in, reset via bot
+2. **Authentication** ✅ password + Telegram bot sign-in, linking, phone verification, reset via bot
 3. Booking and scheduling
 4. Notifications
 5. Earnings, admin, pilot release

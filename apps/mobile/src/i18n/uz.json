@@ -1,5 +1,10 @@
 {
-  "common": { "signOut": "Chiqish", "language": "Til", "comingSoon": "Tez orada", "soon": "Keyingi bosqichda qoʻshiladi" },
+  "common": {
+    "signOut": "Chiqish",
+    "language": "Til",
+    "comingSoon": "Tez orada",
+    "soon": "Keyingi bosqichda qoʻshiladi"
+  },
   "auth": {
     "heroTitle": "Sartaroshga navbat bir necha soniyada",
     "heroBody": "Xizmatni tanlang, qulay vaqtni band qiling va onlayn toʻlang.",
@@ -16,13 +21,55 @@
     "signUp": "Roʻyxatdan oʻtish",
     "invalid": "Login yoki parol notoʻgʻri",
     "demoTitle": "Demo rejim (Supabase ulanmagan)",
-    "demoAs": "{{role}} sifatida kirish"
+    "demoAs": "{{role}} sifatida kirish",
+    "fullName": "Ism va familiya",
+    "phone": "Telefon raqam",
+    "username": "Foydalanuvchi nomi",
+    "usernameHint": "Lotin harflari, raqamlar va _ (3–32 belgi)",
+    "passwordHint": "Kamida 8 belgi",
+    "createAccount": "Hisob yaratish",
+    "haveAccount": "Hisobingiz bormi?",
+    "signUpTitle": "Roʻyxatdan oʻtish",
+    "newPasswordTitle": "Yangi parol",
+    "newPasswordBody": "Telegram orqali tasdiqlandi. Yangi parolni kiriting.",
+    "newPassword": "Yangi parol",
+    "repeatPassword": "Parolni takrorlang",
+    "savePassword": "Saqlash va kirish",
+    "passwordsDiffer": "Parollar mos kelmadi",
+    "needsSupabase": "Bu funksiya uchun Supabase ulanishi kerak.",
+    "errors": {
+      "invalid_credentials": "Login yoki parol notoʻgʻri",
+      "locked": "Hisob {{time}} gacha bloklangan. Parolni Telegram orqali tiklashingiz mumkin.",
+      "too_many_attempts": "Urinishlar juda koʻp. 15 daqiqadan soʻng qayta urinib koʻring.",
+      "phone_taken": "Bu raqam bilan hisob allaqachon mavjud",
+      "username_taken": "Bu foydalanuvchi nomi band",
+      "invalid_phone": "Raqamni +998 XX XXX XX XX koʻrinishida kiriting",
+      "invalid_username": "Faqat lotin harflari, raqamlar va _ (3–32 belgi)",
+      "password_too_short": "Parol kamida 8 belgidan iborat boʻlsin",
+      "invalid_name": "Ismingizni kiriting",
+      "telegram_not_configured": "Telegram bot hali sozlanmagan",
+      "expired": "Havola eskirdi. Qaytadan urinib koʻring.",
+      "already_linked": "Telegram allaqachon ulangan",
+      "network": "Internet aloqasini tekshiring",
+      "server_error": "Xatolik yuz berdi. Qaytadan urinib koʻring."
+    }
   },
-  "roles": { "client": "Mijoz", "barber": "Sartarosh", "admin": "Admin" },
+  "roles": {
+    "client": "Mijoz",
+    "barber": "Sartarosh",
+    "admin": "Admin"
+  },
   "tabs": {
-    "home": "Asosiy", "bookings": "Bronlarim", "profile": "Profil",
-    "today": "Bugun", "calendar": "Kalendar", "earnings": "Daromad",
-    "dashboard": "Panel", "schedule": "Jadval", "manage": "Boshqaruv", "reports": "Hisobotlar"
+    "home": "Asosiy",
+    "bookings": "Bronlarim",
+    "profile": "Profil",
+    "today": "Bugun",
+    "calendar": "Kalendar",
+    "earnings": "Daromad",
+    "dashboard": "Panel",
+    "schedule": "Jadval",
+    "manage": "Boshqaruv",
+    "reports": "Hisobotlar"
   },
   "client": {
     "hello": "Salom,",
@@ -35,5 +82,35 @@
     "all": "Barchasi",
     "barbers": "Sartaroshlar",
     "minutes": "{{count}} daqiqa"
+  },
+  "telegram": {
+    "title": "Telegramda «Start» tugmasini bosing",
+    "titleReset": "Telegramda tasdiqlang",
+    "body": "Bot sizdan kirishni tasdiqlashni va telefon raqamingizni ulashishni soʻraydi. Keyin shu yerga qayting.",
+    "bodyLink": "Bot telefon raqamingizni ulashishni soʻraydi. Shu bilan raqamingiz tasdiqlanadi.",
+    "bodyReset": "Bot parolni tiklashni tasdiqlashni soʻraydi. Keyin shu yerda yangi parol kiritasiz.",
+    "step1": "Telegram ochildi",
+    "step2": "«Start» va «Raqamni ulashish»",
+    "step2Reset": "«Tasdiqlash» tugmasini bosing",
+    "step3": "Ilovaga avtomatik kirasiz",
+    "step3Link": "Telegram hisobingizga ulanadi",
+    "step3Reset": "Yangi parol kiritasiz",
+    "waiting": "Tasdiq kutilmoqda · havola {{time}} ichida amal qiladi",
+    "expired": "Havola eskirdi",
+    "starting": "Tayyorlanmoqda…",
+    "reopen": "Telegramni qayta ochish",
+    "newLink": "Yangi havola olish",
+    "withPassword": "Parol bilan kirish",
+    "later": "Keyinroq",
+    "cancel": "Bekor qilish",
+    "signupDone": "Hisob yaratildi! Raqamingizni Telegram orqali tasdiqlang — bron qilish uchun kerak boʻladi."
+  },
+  "profile": {
+    "telegram": "Telegram",
+    "linked": "Ulangan",
+    "notLinked": "Ulanmagan",
+    "link": "Telegramni ulash",
+    "phoneVerified": "Raqam tasdiqlangan",
+    "phoneNotVerified": "Raqam tasdiqlanmagan"
   }
 }

@@ -105,12 +105,14 @@ export function Placeholder({ title }: { title: string }) {
 }
 
 // Icons: inline stroke SVGs from the UI canvas ------------------------------
-type IconName = 'eye' | 'eyeOff' | 'home' | 'calendar' | 'user' | 'bell' | 'telegram' | 'scissors' | 'clock' | 'wallet' | 'grid' | 'chart' | 'settings';
+type IconName = 'back' | 'check' | 'eye' | 'eyeOff' | 'home' | 'calendar' | 'user' | 'bell' | 'telegram' | 'scissors' | 'clock' | 'wallet' | 'grid' | 'chart' | 'settings';
 export function Icon({ name, color = colors.ink, size = 22 }: { name: IconName; color?: string; size?: number }) {
   const p = { stroke: color, strokeWidth: 2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const, fill: 'none' };
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" accessibilityElementsHidden importantForAccessibility="no">
-      {name === 'eye' && (<><Path {...p} d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" /><Circle {...p} cx={12} cy={12} r={3} /></>)}
+      {name === 'back' && <Path {...p} d="M15 18l-6-6 6-6" />}
+      {name === 'check' && <Path {...p} strokeWidth={2.5} d="m5 12 5 5 9-10" />}
+      {name === 'eye' &&(<><Path {...p} d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" /><Circle {...p} cx={12} cy={12} r={3} /></>)}
       {name === 'eyeOff' && (<><Path {...p} d="M10.6 5.1A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-2.2 3.2M6.6 6.6C3.7 8.4 2 12 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6" /><Path {...p} d="M9.9 9.9a3 3 0 0 0 4.2 4.2M2 2l20 20" /></>)}
       {name === 'home' &&<Path {...p} d="M3 10.5 12 3l9 7.5V21H3z" />}
       {name === 'calendar' && (<><Rect {...p} x={3} y={4} width={18} height={17} rx={2} /><Path {...p} d="M16 2v4M8 2v4M3 10h18" /></>)}

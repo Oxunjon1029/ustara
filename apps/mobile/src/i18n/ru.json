@@ -1,5 +1,10 @@
 {
-  "common": { "signOut": "Выйти", "language": "Язык", "comingSoon": "Скоро", "soon": "Появится на следующем этапе" },
+  "common": {
+    "signOut": "Выйти",
+    "language": "Язык",
+    "comingSoon": "Скоро",
+    "soon": "Появится на следующем этапе"
+  },
   "auth": {
     "heroTitle": "Запись к барберу за пару секунд",
     "heroBody": "Выберите услугу, забронируйте удобное время и оплатите онлайн.",
@@ -16,13 +21,55 @@
     "signUp": "Регистрация",
     "invalid": "Неверный логин или пароль",
     "demoTitle": "Демо-режим (Supabase не подключён)",
-    "demoAs": "Войти как {{role}}"
+    "demoAs": "Войти как {{role}}",
+    "fullName": "Имя и фамилия",
+    "phone": "Номер телефона",
+    "username": "Имя пользователя",
+    "usernameHint": "Латиница, цифры и _ (3–32 символа)",
+    "passwordHint": "Минимум 8 символов",
+    "createAccount": "Создать аккаунт",
+    "haveAccount": "Уже есть аккаунт?",
+    "signUpTitle": "Регистрация",
+    "newPasswordTitle": "Новый пароль",
+    "newPasswordBody": "Подтверждено через Telegram. Введите новый пароль.",
+    "newPassword": "Новый пароль",
+    "repeatPassword": "Повторите пароль",
+    "savePassword": "Сохранить и войти",
+    "passwordsDiffer": "Пароли не совпадают",
+    "needsSupabase": "Для этой функции нужно подключение к Supabase.",
+    "errors": {
+      "invalid_credentials": "Неверный логин или пароль",
+      "locked": "Аккаунт заблокирован до {{time}}. Пароль можно сбросить через Telegram.",
+      "too_many_attempts": "Слишком много попыток. Повторите через 15 минут.",
+      "phone_taken": "Аккаунт с этим номером уже существует",
+      "username_taken": "Это имя пользователя занято",
+      "invalid_phone": "Введите номер в формате +998 XX XXX XX XX",
+      "invalid_username": "Только латиница, цифры и _ (3–32 символа)",
+      "password_too_short": "Пароль должен быть не короче 8 символов",
+      "invalid_name": "Введите имя",
+      "telegram_not_configured": "Telegram-бот ещё не настроен",
+      "expired": "Ссылка устарела. Попробуйте снова.",
+      "already_linked": "Telegram уже привязан",
+      "network": "Проверьте подключение к интернету",
+      "server_error": "Произошла ошибка. Попробуйте снова."
+    }
   },
-  "roles": { "client": "Клиент", "barber": "Барбер", "admin": "Админ" },
+  "roles": {
+    "client": "Клиент",
+    "barber": "Барбер",
+    "admin": "Админ"
+  },
   "tabs": {
-    "home": "Главная", "bookings": "Мои записи", "profile": "Профиль",
-    "today": "Сегодня", "calendar": "Календарь", "earnings": "Доход",
-    "dashboard": "Панель", "schedule": "График", "manage": "Управление", "reports": "Отчёты"
+    "home": "Главная",
+    "bookings": "Мои записи",
+    "profile": "Профиль",
+    "today": "Сегодня",
+    "calendar": "Календарь",
+    "earnings": "Доход",
+    "dashboard": "Панель",
+    "schedule": "График",
+    "manage": "Управление",
+    "reports": "Отчёты"
   },
   "client": {
     "hello": "Привет,",
@@ -35,5 +82,35 @@
     "all": "Все",
     "barbers": "Барберы",
     "minutes": "{{count}} мин"
+  },
+  "telegram": {
+    "title": "Нажмите «Start» в Telegram",
+    "titleReset": "Подтвердите в Telegram",
+    "body": "Бот попросит подтвердить вход и поделиться номером телефона. Затем вернитесь сюда.",
+    "bodyLink": "Бот попросит поделиться номером телефона. Так ваш номер будет подтверждён.",
+    "bodyReset": "Бот попросит подтвердить сброс пароля. Затем введите новый пароль здесь.",
+    "step1": "Telegram открыт",
+    "step2": "«Start» и «Поделиться номером»",
+    "step2Reset": "Нажмите «Подтвердить»",
+    "step3": "Вход в приложение автоматически",
+    "step3Link": "Telegram привяжется к аккаунту",
+    "step3Reset": "Введите новый пароль",
+    "waiting": "Ожидаем подтверждения · ссылка действует {{time}}",
+    "expired": "Ссылка устарела",
+    "starting": "Подготовка…",
+    "reopen": "Открыть Telegram снова",
+    "newLink": "Получить новую ссылку",
+    "withPassword": "Войти с паролем",
+    "later": "Позже",
+    "cancel": "Отмена",
+    "signupDone": "Аккаунт создан! Подтвердите номер через Telegram — это нужно для записи."
+  },
+  "profile": {
+    "telegram": "Telegram",
+    "linked": "Привязан",
+    "notLinked": "Не привязан",
+    "link": "Привязать Telegram",
+    "phoneVerified": "Номер подтверждён",
+    "phoneNotVerified": "Номер не подтверждён"
   }
 }

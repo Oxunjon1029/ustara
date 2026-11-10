@@ -9,6 +9,7 @@ import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold } from '
 import { SpaceGrotesk_600SemiBold, SpaceGrotesk_700Bold } from '@expo-google-fonts/space-grotesk';
 import { AuthProvider, useAuth } from '../src/features/auth/AuthProvider';
 import { initSentry, Sentry } from '../src/lib/sentry';
+import { DialogHost } from '../src/components/Dialog';
 
 initSentry();
 SplashScreen.preventAutoHideAsync();
@@ -55,6 +56,7 @@ function RootLayout() {
         <AuthProvider>
           <StatusBar style="dark" />
           <RootStack />
+          <DialogHost />
         </AuthProvider>
       </QueryClientProvider>
     </KeyboardProvider>

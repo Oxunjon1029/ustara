@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { isDemo, supabase } from '../../lib/supabase';
 
-export interface Service { id: string; name_uz: string; name_ru: string; duration_min: number; price_uzs: number }
+export interface Service { id: string; name_uz: string; name_ru: string; duration_min: number; price_uzs: number; buffer_min?: number }
 export interface Barber { id: string; full_name: string; rating_avg: number }
 export interface NextBooking { id: string; starts_at: string; status: string; price_uzs: number; barber_name: string; service: Service }
 
@@ -23,7 +23,7 @@ export const useServices = () =>
       if (isDemo) return DEMO_SERVICES;
       const { data, error } = await supabase
         .from('services')
-        .select('id, name_uz, name_ru, duration_min, price_uzs')
+        .select('id, name_uz, name_ru, duration_min, price_uzs, buffer_min')
         .eq('is_active', true)
         .order('sort');
       if (error) throw error;
@@ -73,6 +73,52 @@ export const useNextBooking = (userId: string) =>
         price_uzs: data.price_uzs,
         barber_name: p?.full_name ?? '',
         service: data.services as unknown as Service,
+      };
+    },
+  });
+
+export interface BarberProfile {
+  id: string;
+  full_name: string;
+  bio: { uz: string | null; ru: string | null };
+  rating_avg: number;
+  rating_count: number;
+  services: (Service & { price: number })[];
+  /** weekday (0 = Sunday) → 'HH:MM–HH:MM'; missing = day off */
+  hours: Record<number, string>;
+}
+
+/** Everything a client sees on a barber's profile page. */
+export const useBarberProfile = (id: string) =>
+  useQuery({
+    queryKey: ['barberProfile', id],
+    enabled: !!id,
+    queryFn: async (): Promise<BarberProfile> => {
+      if (isDemo) {
+        const b = DEMO_BARBERS.find((x) => x.id === id) ?? DEMO_BARBERS[0];
+        return {
+          ...b, bio: { uz: 'Klassik va zamonaviy soch turmagi.', ru: 'Классические и современные стрижки.' }, rating_count: 120,
+          services: DEMO_SERVICES.map((s) => ({ ...s, price: s.price_uzs })),
+          hours: Object.fromEntries([1, 2, 3, 4, 5, 6].map((d) => [d, '10:00–19:00'])),
+        };
+      }
+      const { data: b, error } = await supabase.from('barbers').select('id, user_id, bio_uz, bio_ru, rating_avg, rating_count').eq('id', id).single();
+      if (error) throw error;
+      const [p, bs, wh] = await Promise.all([
+        supabase.from('profiles').select('full_name').eq('user_id', b.user_id).single(),
+        supabase.from('barber_services').select('price_override_uzs, services(id, name_uz, name_ru, duration_min, price_uzs, is_active, sort)').eq('barber_id', id),
+        supabase.from('working_hours').select('weekday, start_local, end_local').eq('barber_id', id),
+      ]);
+      type Row = { price_override_uzs: number | null; services: Service & { is_active: boolean; sort: number } };
+      const services = ((bs.data ?? []) as unknown as Row[])
+        .filter((r) => r.services?.is_active)
+        .sort((a, c) => a.services.sort - c.services.sort)
+        .map((r) => ({ ...r.services, price: r.price_override_uzs ?? r.services.price_uzs }));
+      const hours: Record<number, string> = {};
+      for (const h of wh.data ?? []) hours[h.weekday] = `${h.start_local.slice(0, 5)}–${h.end_local.slice(0, 5)}`;
+      return {
+        id: b.id, full_name: p.data?.full_name ?? '', bio: { uz: b.bio_uz, ru: b.bio_ru },
+        rating_avg: Number(b.rating_avg), rating_count: b.rating_count, services, hours,
       };
     },
   });

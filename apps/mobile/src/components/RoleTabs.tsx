@@ -1,4 +1,5 @@
 import { Tabs } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '.';
 import { colors, fonts } from '../theme';
@@ -8,13 +9,21 @@ type IconName = Parameters<typeof Icon>[0]['name'];
 /** Bottom tab bar styled like the UI canvas. */
 export function RoleTabs({ tabs }: { tabs: { name: string; label: string; icon: IconName }[] }) {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.inkMuted,
-        tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.chrome, height: 76, paddingTop: 8 },
+        // Explicit: 60px of tab content plus the system navigation area (3-button bar or gesture handle).
+        tabBarStyle: {
+          backgroundColor: colors.surface,
+          borderTopColor: colors.chrome,
+          height: 60 + insets.bottom,
+          paddingTop: 6,
+          paddingBottom: insets.bottom + 6,
+        },
         tabBarLabelStyle: { fontFamily: fonts.semibold, fontSize: 12 },
       }}
     >

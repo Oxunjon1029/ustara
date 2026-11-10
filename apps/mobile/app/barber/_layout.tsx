@@ -1,14 +1,6 @@
-import { RoleTabs } from '../../src/components/RoleTabs';
+import { Stack } from 'expo-router';
 
-export default function BarberLayout() {
-  return (
-    <RoleTabs
-      tabs={[
-        { name: 'today', label: 'tabs.today', icon: 'clock' },
-        { name: 'calendar', label: 'tabs.calendar', icon: 'calendar' },
-        { name: 'earnings', label: 'tabs.earnings', icon: 'wallet' },
-        { name: 'profile', label: 'tabs.profile', icon: 'user' },
-      ]}
-    />
-  );
+/** Tabs at the bottom of the stack; full-screen flows (booking, walk-in, …) are pushed on top. */
+export default function Layout() {
+  return <Stack screenOptions={{ headerShown: false }} />;
 }

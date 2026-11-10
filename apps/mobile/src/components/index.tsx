@@ -25,6 +25,9 @@ export function Button(props: {
   icon?: ReactNode;
   loading?: boolean;
   disabled?: boolean;
+  /** 'sm': 44px-tall, 14px label, for buttons inside cards */
+  size?: 'md' | 'sm';
+  textColor?: string;
   style?: StyleProp<ViewStyle>;
 }) {
   const v = props.variant ?? 'primary';
@@ -37,6 +40,7 @@ export function Button(props: {
         s.button,
         { backgroundColor: bg[v], opacity: pressed || props.disabled ? 0.85 : 1 },
         v === 'outline' && { borderWidth: 1, borderColor: colors.border },
+        props.size === 'sm' && { height: 44, paddingHorizontal: 12 },
         props.style,
       ]}
     >
@@ -45,7 +49,20 @@ export function Button(props: {
       ) : (
         <>
           {props.icon}
-          <Text style={[s.buttonText, v === 'outline' && { color: colors.ink, fontFamily: fonts.medium }]}>{props.label}</Text>
+          <Text
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.85}
+            style={[
+              s.buttonText,
+              v === 'outline' && { color: colors.ink, fontFamily: fonts.medium },
+              props.size === 'sm' && { fontSize: 14, fontFamily: fonts.semibold },
+              props.textColor ? { color: props.textColor } : null,
+              { flexShrink: 1, textAlign: 'center' },
+            ]}
+          >
+            {props.label}
+          </Text>
         </>
       )}
     </Pressable>
@@ -105,7 +122,7 @@ export function Placeholder({ title }: { title: string }) {
 }
 
 // Icons: inline stroke SVGs from the UI canvas ------------------------------
-type IconName = 'back' | 'check' | 'eye' | 'eyeOff' | 'home' | 'calendar' | 'user' | 'bell' | 'telegram' | 'scissors' | 'clock' | 'wallet' | 'grid' | 'chart' | 'settings';
+type IconName = 'back' | 'check' | 'eye' | 'eyeOff' | 'home' | 'calendar' | 'user' | 'bell' | 'telegram' | 'scissors' | 'clock' | 'wallet' | 'grid' | 'chart' | 'settings' | 'phone';
 export function Icon({ name, color = colors.ink, size = 22 }: { name: IconName; color?: string; size?: number }) {
   const p = { stroke: color, strokeWidth: 2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const, fill: 'none' };
   return (
@@ -124,6 +141,7 @@ export function Icon({ name, color = colors.ink, size = 22 }: { name: IconName; 
       {name === 'wallet' && (<><Rect {...p} x={3} y={6} width={18} height={14} rx={2} /><Path {...p} d="M16 13h2M3 10h18" /></>)}
       {name === 'grid' && (<><Rect {...p} x={3} y={3} width={7} height={7} rx={1} /><Rect {...p} x={14} y={3} width={7} height={7} rx={1} /><Rect {...p} x={3} y={14} width={7} height={7} rx={1} /><Rect {...p} x={14} y={14} width={7} height={7} rx={1} /></>)}
       {name === 'chart' && <Path {...p} d="M4 20V10M10 20V4M16 20v-7M22 20H2" />}
+      {name === 'phone' && <Path {...p} d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z" />}
       {name === 'settings' && (<><Circle {...p} cx={12} cy={12} r={3} /><Path {...p} d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" /></>)}
     </Svg>
   );

@@ -1,11 +1,15 @@
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { router } from 'expo-router';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { showDialog } from '../../../src/components/Dialog';
 import { useTranslation } from 'react-i18next';
 import { formatUzs, utcToTashkent } from '@ustara/shared';
-import { Avatar, Badge, Button, Icon, Screen } from '../../src/components';
-import { useAuth } from '../../src/features/auth/AuthProvider';
-import { useBarbers, useNextBooking, useServices } from '../../src/features/catalog/queries';
-import { currentLocale } from '../../src/i18n';
-import { colors, fonts, radius, type } from '../../src/theme';
+import { Avatar, Badge, Button, Icon, Screen } from '../../../src/components';
+import { useAuth } from '../../../src/features/auth/AuthProvider';
+import { useBarbers, useNextBooking, useServices } from '../../../src/features/catalog/queries';
+import { currentLocale } from '../../../src/i18n';
+import { isDemo } from '../../../src/lib/supabase';
+import { whenLabel } from '../../../src/lib/dates';
+import { colors, fonts, radius, type } from '../../../src/theme';
 
 export default function ClientHome() {
   const { t } = useTranslation();
@@ -16,7 +20,7 @@ export default function ClientHome() {
   const services = useServices();
   const barbers = useBarbers();
   const next = useNextBooking(userId);
-  const soon = () => Alert.alert(t('common.comingSoon'), t('common.soon'));
+  const soon = () => showDialog(t('common.comingSoon'), t('common.soon'));
 
   const n = next.data;
   const nLocal = n ? utcToTashkent(new Date(n.starts_at)) : null;
@@ -25,9 +29,9 @@ export default function ClientHome() {
     <Screen>
       <ScrollView contentContainerStyle={s.content}>
         <View style={s.header}>
-          <View>
+          <View style={{ flex: 1 }}>
             <Text style={type.small}>{t('client.hello')}</Text>
-            <Text style={[type.h1, { fontSize: 26 }]}>{name}</Text>
+            <Text style={[type.h1, { fontSize: 26 }]} numberOfLines={2}>{name}</Text>
           </View>
           <Pressable accessibilityRole="button" accessibilityLabel={t('client.notifications')} style={s.iconBtn} onPress={soon}>
             <Icon name="bell" size={20} />
@@ -41,7 +45,7 @@ export default function ClientHome() {
           </View>
           {n && nLocal ? (
             <>
-              <Text style={s.nextTime}>{nLocal.date} · {nLocal.time}</Text>
+              <Text style={s.nextTime}>{whenLabel(n.starts_at, locale)}</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                 <View style={s.darkAvatar}><Text style={{ color: colors.inkOnDark, fontFamily: fonts.semibold }}>{n.barber_name.charAt(0)}</Text></View>
                 <Text style={{ color: colors.inkOnDark, fontFamily: fonts.body, fontSize: 14, lineHeight: 20 }}>
@@ -56,7 +60,7 @@ export default function ClientHome() {
           )}
         </View>
 
-        <Button label={t('client.bookNow')} onPress={soon} />
+        <Button label={t('client.bookNow')} onPress={() => (isDemo ? soon() : router.push('/client/book'))} />
 
         <View style={{ gap: 10 }}>
           <View style={[s.row, { alignItems: 'baseline' }]}>
@@ -65,13 +69,18 @@ export default function ClientHome() {
           </View>
           <View style={s.list}>
             {services.data?.map((svc, i, arr) => (
-              <View key={svc.id} style={[s.listRow, i < arr.length - 1 && s.listDivider]}>
+              <Pressable
+                key={svc.id}
+                accessibilityRole="button"
+                onPress={() => (isDemo ? soon() : router.push({ pathname: '/client/book', params: { service: svc.id } }))}
+                style={[s.listRow, i < arr.length - 1 && s.listDivider]}
+              >
                 <View>
                   <Text style={s.rowTitle}>{locale === 'ru' ? svc.name_ru : svc.name_uz}</Text>
                   <Text style={type.small}>{t('client.minutes', { count: svc.duration_min })}</Text>
                 </View>
                 <Text style={s.rowTitle}>{formatUzs(svc.price_uzs, locale)}</Text>
-              </View>
+              </Pressable>
             ))}
           </View>
         </View>
@@ -80,11 +89,16 @@ export default function ClientHome() {
           <Text style={type.h2}>{t('client.barbers')}</Text>
           <View style={{ flexDirection: 'row', gap: 10 }}>
             {barbers.data?.map((b) => (
-              <View key={b.id} style={s.barber}>
+              <Pressable
+                key={b.id}
+                accessibilityRole="button"
+                onPress={() => router.push({ pathname: '/client/barber/[id]', params: { id: b.id } })}
+                style={({ pressed }) => [s.barber, pressed && { opacity: 0.85 }]}
+              >
                 <Avatar name={b.full_name} />
-                <Text style={[s.rowTitle, { fontSize: 14 }]}>{b.full_name}</Text>
+                <Text style={[s.rowTitle, { fontSize: 14 }]} numberOfLines={1}>{b.full_name}</Text>
                 <Text style={{ fontFamily: fonts.body, fontSize: 12, color: colors.inkMuted }}>★ {b.rating_avg.toFixed(1)}</Text>
-              </View>
+              </Pressable>
             ))}
           </View>
         </View>
@@ -95,7 +109,7 @@ export default function ClientHome() {
 
 const s = StyleSheet.create({
   content: { padding: 20, paddingTop: 24, gap: 22 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   iconBtn: { width: 44, height: 44, borderRadius: radius.md, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
   nextCard: { backgroundColor: colors.ink, borderRadius: radius.card, padding: 18, gap: 14 },

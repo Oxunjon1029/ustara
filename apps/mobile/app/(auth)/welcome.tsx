@@ -1,5 +1,6 @@
 import { useRef, useState, type ComponentRef } from 'react';
-import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { showDialog } from '../../src/components/Dialog';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
@@ -20,7 +21,7 @@ export default function Welcome() {
   const [error, setError] = useState<string | null>(null);
   const passwordRef = useRef<ComponentRef<typeof TextInput>>(null);
 
-  const needsBackend = (go: () => void) => () => (isDemo ? Alert.alert(t('common.comingSoon'), t('auth.needsSupabase')) : go());
+  const needsBackend = (go: () => void) => () => (isDemo ? showDialog(t('common.comingSoon'), t('auth.needsSupabase')) : go());
 
   const submit = async () => {
     if (isDemo || busy) return;

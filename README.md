@@ -51,11 +51,22 @@ node scripts/setup-telegram.mjs        # asks for the BotFather token; sets secr
 Then in the Supabase dashboard turn off **Authentication → Sign In / Providers → Allow new users to sign up**:
 accounts are created only by the functions above.
 
+## Booking (Milestone 3)
+
+All booking writes go through Postgres functions (`create_booking`, `reschedule_booking`, `cancel_booking`,
+`set_booking_outcome`, `add_walkin`); direct inserts/updates are closed by RLS. `check_slot` enforces working hours,
+time off, the 14-day horizon and verified phones; the `bookings_no_overlap` exclusion constraint guarantees no
+double-booking under concurrency. Pilot mode (`payment_mode = in_shop`) confirms bookings immediately.
+
+```sh
+node scripts/test-double-booking.mjs   # two sessions book the same slot at once → expect exactly one
+```
+
 ## Milestones
 
 1. **Foundations** ✅ monorepo, i18n, theme, Sentry, schema + RLS + seed, shared logic with tests, role gate
 2. **Authentication** ✅ password + Telegram bot sign-in, linking, phone verification, reset via bot
-3. Booking and scheduling
+3. **Booking and scheduling** ✅ client booking flow, barber profiles, reschedule/cancel, barber Today/Calendar, walk-ins, time off, hours, no-show limit
 4. Notifications
 5. Earnings, admin, pilot release
 6. Payme and payouts (Phase 2)

@@ -56,3 +56,7 @@ on conflict (barber_id, service_id) do nothing;
 insert into working_hours (barber_id, weekday, start_local, end_local)
 select b.id, d, '10:00', '19:00' from barbers b cross join generate_series(1, 6) d
 where not exists (select 1 from working_hours w where w.barber_id = b.id);
+
+-- demo accounts can book without Telegram
+update profiles set phone_verified = true
+where username in ('admin', 'jasur', 'bekzod', 'sardor', 'aziz') and not phone_verified;

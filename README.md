@@ -84,22 +84,31 @@ npx supabase functions deploy notify-dispatch --remote=<ref>
 
 ## Telegram Mini App and environments
 
-The app also runs as a Telegram Mini App: the same Expo code exported for the web ( loads
-Telegram's SDK). Inside Telegram a linked account signs in automatically:  (action ) checks the
+The app also runs as a Telegram Mini App: the same Expo code exported for the web (`apps/mobile/public/index.html` loads
+Telegram's SDK). Inside Telegram a linked account signs in automatically: `telegram-token` (action `webapp`) checks the
 signed launch data with the bot token.
 
 | Branch | Supabase | Mini App | Bot |
 | --- | --- | --- | --- |
-|  | dev (, Seoul) | https://ustara-dev.pages.dev | dev bot |
-|  | production (, London) | https://ustara.pages.dev | production bot |
+| `stage` | dev (`guufqpkykxayvrpjycij`, Seoul) | https://ustara-dev.pages.dev | dev bot |
+| `main` | production (`iazjxxxcdcstlswwmscj`, London) | https://ustara.pages.dev | production bot |
 
-Work on ; merge into  after testing. Pushing either branch deploys its Mini App through
- (repository secrets are listed at the top of that file). Database migrations and Edge
-Functions are deployed by hand, per project: .
+Work on `stage`; merge into `main` after testing. Pushing either branch deploys its Mini App through
+`.github/workflows/deploy-web.yml` (repository secrets are listed at the top of that file). Database migrations and Edge
+Functions are deployed by hand, per project, with `--remote=<ref>`.
 
-Manual deploy from :  or  (reads  / ).
-New project setup: , , secret
- (shows the bot's open-app button), and .
+Manual deploy from `apps/mobile`: `npm run deploy:web:dev` or `npm run deploy:web` (reads `.env` / `.env.production`).
+
+New project setup:
+
+```sh
+npx supabase db push --remote=<ref>
+node scripts/setup-telegram.mjs --ref=<ref>
+node scripts/create-admin.mjs --ref=<ref>
+npx supabase secrets set WEBAPP_URL=<mini app url> --remote=<ref>   # shows the bot's open-app button
+```
+
+Then in the SQL editor: `update private.dispatch set url = 'https://<ref>.supabase.co/functions/v1/notify-dispatch';`
 
 ## Milestones
 

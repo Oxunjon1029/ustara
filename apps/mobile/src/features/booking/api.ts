@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { generateSlots, tashkentToUtc, type Slot, type WorkingHours } from '@ustara/shared';
 import { supabase } from '../../lib/supabase';
-import type { Service } from '../catalog/queries';
+import { useServices, type Service } from '../catalog/queries';
 
 export interface BookingRow {
   id: string;
@@ -62,6 +62,8 @@ export async function fetchAvailability(opts: {
   service: Service & { buffer_min?: number };
   date: string;
   ignoreBookingId?: string;
+  /** per-barber duration when it differs from the service default */
+  durations?: Record<string, number>;
 }): Promise<BarberSlots[]> {
   const { from, to } = dayBounds(opts.date);
   const [hours, timeOff] = await Promise.all([
@@ -88,7 +90,7 @@ export async function fetchAvailability(opts: {
         .map((h): WorkingHours => ({ weekday: h.weekday, start_local: h.start_local.slice(0, 5), end_local: h.end_local.slice(0, 5) })),
       timeOff: (timeOff.data ?? []).filter((t) => t.barber_id === barberId),
       bookings: (busy[i].data ?? []).filter((b: { starts_at: string }) => !own || Date.parse(b.starts_at) !== Date.parse(own.starts_at)),
-      durationMin: opts.service.duration_min,
+      durationMin: opts.durations?.[barberId] ?? opts.service.duration_min,
       bufferMin: opts.service.buffer_min ?? 0,
       now: new Date(),
       leadMin: 5,
@@ -165,12 +167,29 @@ export const useMyBarberId = (userId: string) =>
   });
 
 /** Which services each barber offers. */
+export interface Offer { barber_id: string; service_id: string; price_override_uzs: number | null; duration_override_min: number | null }
+
 export const useBarberServices = () =>
   useQuery({
     queryKey: ['barberServices'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('barber_services').select('barber_id, service_id');
+      const { data, error } = await supabase.from('barber_services').select('barber_id, service_id, price_override_uzs, duration_override_min');
       if (error) throw error;
-      return data as { barber_id: string; service_id: string }[];
+      return data as Offer[];
     },
   });
+
+/** What a service costs and how long it takes with a given barber (their own terms, else the shop default). */
+export function termsFor(offers: Offer[] | undefined, barberId: string | null | undefined, service: Service) {
+  const o = barberId ? offers?.find((x) => x.barber_id === barberId && x.service_id === service.id) : undefined;
+  return { price: o?.price_override_uzs ?? service.price_uzs, duration: o?.duration_override_min ?? service.duration_min };
+}
+
+/** The signed-in barber's services with their own duration and price applied. */
+export function useMyServiceTerms(userId: string) {
+  const barberId = useMyBarberId(userId);
+  const services = useServices();
+  const offers = useBarberServices();
+  const list = services.data?.map((sv) => ({ ...sv, ...termsFor(offers.data, barberId.data, sv) }));
+  return { barberId: barberId.data ?? null, services: list, isLoading: services.isLoading || offers.isLoading, refetch: offers.refetch };
+}

@@ -8,7 +8,7 @@ import { dateStrip, formatUzs, type Slot } from '@ustara/shared';
 import { Avatar, Button, Card, Icon, Screen } from '../../src/components';
 import { FormError } from '../../src/components/fields';
 import { useAuth } from '../../src/features/auth/AuthProvider';
-import { bookingActions, fetchAvailability, useBarberServices, useMyBookings } from '../../src/features/booking/api';
+import { bookingActions, fetchAvailability, termsFor, useBarberServices, useMyBookings } from '../../src/features/booking/api';
 import { bookingErrorText, DateStrip, SlotGrid } from '../../src/features/booking/components';
 import { useBarbers, useServices, type Service } from '../../src/features/catalog/queries';
 import { currentLocale } from '../../src/i18n';
@@ -52,11 +52,22 @@ export default function Book() {
     [barbers.data, offers.data, sid],
   );
   const candidateIds = bid && bid !== ANY ? [bid] : offering.map((b) => b.id);
+  // Each barber sets their own price and duration; "any barber" shows the shop default until a slot picks one.
+  const terms = (barber?: string | null, sv: Service | undefined = service) =>
+    sv ? termsFor(offers.data, barber && barber !== ANY ? barber : null, sv) : { price: 0, duration: 0 };
+  const durations = Object.fromEntries(candidateIds.map((id) => [id, terms(id).duration]));
+  const chosen = terms(slot?.barberId ?? bid);
+  const price = isReschedule && original ? original.price_uzs : chosen.price;
+  /** Lowest and highest price for a service across the barbers who offer it. */
+  const priceRange = (sv: Service) => {
+    const ps = offers.data?.filter((o) => o.service_id === sv.id).map((o) => o.price_override_uzs ?? sv.price_uzs) ?? [];
+    return ps.length ? [Math.min(...ps), Math.max(...ps)] : [sv.price_uzs, sv.price_uzs];
+  };
 
   const availability = useQuery({
-    queryKey: ['availability', candidateIds.join(','), sid, date, params.reschedule ?? ''],
+    queryKey: ['availability', candidateIds.join(','), sid, date, params.reschedule ?? '', JSON.stringify(durations)],
     enabled: step >= 2 && !!service && candidateIds.length > 0,
-    queryFn: () => fetchAvailability({ barberIds: candidateIds, service: service!, date, ignoreBookingId: params.reschedule }),
+    queryFn: () => fetchAvailability({ barberIds: candidateIds, service: service!, date, ignoreBookingId: params.reschedule, durations }),
   });
 
   // "Any barber": one grid of times, each mapped to the first barber free then.
@@ -141,9 +152,15 @@ export default function Book() {
               >
                 <View>
                   <Text style={s.rowTitle}>{name(sv)}</Text>
-                  <Text style={type.small}>{t('client.minutes', { count: sv.duration_min })}</Text>
+                  <Text style={type.small}>{t('client.minutes', { count: params.barber ? terms(params.barber, sv).duration : sv.duration_min })}</Text>
                 </View>
-                <Text style={s.rowTitle}>{formatUzs(sv.price_uzs, locale)}</Text>
+                <Text style={s.rowTitle}>
+                  {params.barber
+                    ? formatUzs(terms(params.barber, sv).price, locale)
+                    : priceRange(sv)[0] === priceRange(sv)[1]
+                      ? formatUzs(priceRange(sv)[0], locale)
+                      : t('booking.fromPrice', { price: formatUzs(priceRange(sv)[0], locale) })}
+                </Text>
               </Pressable>
             ))}
           </View>
@@ -156,7 +173,7 @@ export default function Book() {
               <BarberRow
                 key={b.id}
                 label={b.full_name}
-                sub={`★ ${b.rating_avg.toFixed(1)}`}
+                sub={`★ ${b.rating_avg.toFixed(1)} · ${t('client.minutes', { count: terms(b.id).duration })} · ${formatUzs(terms(b.id).price, locale)}`}
                 onPress={() => { setBarberId(b.id); setSlot(null); setStep(2); }}
                 onInfo={() => router.push({ pathname: '/client/barber/[id]', params: { id: b.id } })}
                 infoLabel={t('barberProfile.title')}
@@ -174,7 +191,7 @@ export default function Book() {
                   <Text style={{ fontFamily: fonts.semibold }}>{name(service)}</Text>
                   {bid && bid !== ANY ? ` · ${chosenBarber?.full_name ?? ''}` : ''}
                   {'\n'}
-                  <Text style={{ color: colors.inkMuted }}>{t('client.minutes', { count: service.duration_min })} · {formatUzs(service.price_uzs, locale)}</Text>
+                  <Text style={{ color: colors.inkMuted }}>{t('client.minutes', { count: chosen.duration })} · {formatUzs(price, locale)}</Text>
                 </Text>
                 {!isReschedule && (
                   <Pressable onPress={() => setStep(0)} style={{ paddingVertical: 8 }}>
@@ -223,12 +240,12 @@ export default function Book() {
               </View>
               <View style={s.hr} />
               <Line label={t('booking.date')} value={longDate(date, locale)} />
-              <Line label={t('booking.time')} value={`${localTime(new Date(slot.ms))} – ${localTime(new Date(slot.ms + service.duration_min * 60_000))}`} />
-              <Line label={t('booking.price')} value={formatUzs(service.price_uzs, locale)} />
+              <Line label={t('booking.time')} value={`${localTime(new Date(slot.ms))} – ${localTime(new Date(slot.ms + chosen.duration * 60_000))}`} />
+              <Line label={t('booking.price')} value={formatUzs(price, locale)} />
               <View style={s.hr} />
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
                 <Text style={{ fontFamily: fonts.semibold, fontSize: 16, color: colors.ink }}>{t('booking.total')}</Text>
-                <Text style={{ fontFamily: fonts.display, fontSize: 22, color: colors.ink }}>{formatUzs(service.price_uzs, locale)}</Text>
+                <Text style={{ fontFamily: fonts.display, fontSize: 22, color: colors.ink }}>{formatUzs(price, locale)}</Text>
               </View>
               <Text style={type.small}>{t('booking.noExtra')} {t('booking.payAtShop')}</Text>
             </Card>
@@ -254,7 +271,7 @@ export default function Book() {
             {longDate(date, locale)}
             {'\n'}
             <Text style={{ fontFamily: fonts.semibold, color: colors.ink }}>
-              {slot && service ? `${localTime(new Date(slot.ms))} – ${localTime(new Date(slot.ms + service.duration_min * 60_000))}` : '—'}
+              {slot && service ? `${localTime(new Date(slot.ms))} – ${localTime(new Date(slot.ms + chosen.duration * 60_000))}` : '—'}
             </Text>
           </Text>
           {/* Never silently disabled: an incomplete step explains itself on tap. */}

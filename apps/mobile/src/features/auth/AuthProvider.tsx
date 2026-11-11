@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import type { Locale, Role } from '@ustara/shared';
 import { callFn, type SessionTokens } from '../../lib/api';
 import { isDemo, supabase } from '../../lib/supabase';
+import { unregisterPush } from '../notifications/push';
 import i18n from '../../i18n';
 
 export interface Profile {
@@ -103,7 +104,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInDemo = useCallback((role: Role) => setState({ status: 'signedIn', profile: DEMO[role] }), []);
 
   const signOut = useCallback(async () => {
-    if (!isDemo) await supabase.auth.signOut();
+    if (!isDemo) {
+      await unregisterPush().catch(() => {});
+      await supabase.auth.signOut();
+    }
     setState({ status: 'signedOut' });
   }, []);
 

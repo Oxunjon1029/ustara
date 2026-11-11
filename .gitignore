@@ -9,3 +9,7 @@ supabase/.branches
 supabase/.temp
 ios/
 android/
+
+# Firebase/Google service-account keys (secret)
+*service-account*.json
+*-firebase-adminsdk-*.json

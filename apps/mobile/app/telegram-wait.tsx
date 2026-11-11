@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AppState, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { AppState, Linking, Pressable, StyleSheet, Text, View, ScrollView } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
@@ -107,20 +107,21 @@ export default function TelegramWait() {
   const canReopen = status === 'pending' && link;
 
   return (
-    <Screen fullScreen style={s.root}>
+    <Screen fullScreen>
+      <ScrollView contentContainerStyle={s.root} bounces={false}>
       <Pressable accessibilityRole="button" accessibilityLabel={t('telegram.cancel')} onPress={finish} style={s.back}>
         <Icon name="back" size={20} />
       </Pressable>
 
       <View style={s.hero}>
         <View style={s.tile}><Icon name="telegram" color={colors.telegram} size={44} /></View>
-        <Text style={[type.h1, { textAlign: 'center', marginTop: 28 }]}>{isReset ? t('telegram.titleReset') : t('telegram.title')}</Text>
+        <Text style={[type.h1, { textAlign: 'center', marginTop: 20 }]}>{isReset ? t('telegram.titleReset') : t('telegram.title')}</Text>
         <Text style={[type.body, { color: colors.inkMuted, textAlign: 'center', marginTop: 12 }]}>
           {fromSignup ? `${t('telegram.signupDone')}\n\n${body}` : body}
         </Text>
       </View>
 
-      <View style={{ marginTop: 32, gap: 12 }}>
+      <View style={{ marginTop: 24, gap: 10 }}>
         <Step n={1} label={t('telegram.step1')} state={link ? 'done' : 'todo'} />
         <Step n={2} label={step2} state={status === 'confirmed' ? 'done' : link ? 'active' : 'todo'} />
         <Step n={3} label={step3} state={status === 'confirmed' ? 'active' : 'todo'} />
@@ -133,8 +134,10 @@ export default function TelegramWait() {
         </Text>
       </View>
       <FormError message={error} />
+      </ScrollView>
 
-      <View style={{ marginTop: 'auto', gap: 10 }}>
+      {/* Pinned under the scrolling content so the actions never fall behind the system navigation bar. */}
+      <View style={s.footer}>
         <Button
           variant="telegram"
           label={canReopen ? t('telegram.reopen') : t('telegram.newLink')}
@@ -176,9 +179,10 @@ function Step({ n, label, state }: { n: number; label: string; state: 'done' | '
 }
 
 const s = StyleSheet.create({
-  root: { paddingHorizontal: 24, paddingTop: 8, paddingBottom: 24 },
+  root: { paddingHorizontal: 24, paddingTop: 8, paddingBottom: 16 },
+  footer: { gap: 10, paddingHorizontal: 24, paddingTop: 8, paddingBottom: 12 },
   back: { width: 44, height: 44, borderRadius: radius.md, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
-  hero: { marginTop: 40, alignItems: 'center' },
+  hero: { marginTop: 16, alignItems: 'center' },
   tile: { width: 96, height: 96, borderRadius: 28, backgroundColor: colors.telegramSoft, alignItems: 'center', justifyContent: 'center' },
   step: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.surface, borderRadius: radius.lg, paddingVertical: 14, paddingHorizontal: 16 },
   badge: { width: 28, height: 28, borderRadius: radius.pill, borderWidth: 2, borderColor: '#C9C3B8', alignItems: 'center', justifyContent: 'center' },

@@ -22,7 +22,17 @@ AsyncStorage.getItem(KEY).then((saved) => {
 
 export function setLocale(locale: Locale) {
   AsyncStorage.setItem(KEY, locale);
+  syncProfileLocale(locale);
   return i18n.changeLanguage(locale);
+}
+
+/** Store the language on the profile so notifications arrive in it. No-op when signed out. */
+export async function syncProfileLocale(locale: Locale = currentLocale()) {
+  const { supabase, isDemo } = await import('../lib/supabase');
+  if (isDemo) return;
+  const { data } = await supabase.auth.getSession();
+  const uid = data.session?.user.id;
+  if (uid) await supabase.from('profiles').update({ locale }).eq('user_id', uid);
 }
 
 export const currentLocale = (): Locale => (i18n.language === 'ru' ? 'ru' : 'uz');

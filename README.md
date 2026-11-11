@@ -62,12 +62,32 @@ double-booking under concurrency. Pilot mode (`payment_mode = in_shop`) confirms
 node scripts/test-double-booking.mjs   # two sessions book the same slot at once → expect exactly one
 ```
 
+## Notifications (Milestone 4)
+
+Booking events (confirmed, new booking, cancelled, rescheduled, no-show) and reminders (24 h and 2 h before) create rows in
+`notifications`, written in the recipient's language (`profiles.locale`, synced from the app). The `notify-dispatch`
+Edge Function sends them through the **Telegram bot**. It is woken by `pg_net` after each insert and by a `pg_cron` job
+every minute (reminders and retries). The app lists them under the bell, with an unread badge.
+
+Every client who can book has linked Telegram (phone verification goes through the bot); barbers see a
+"connect Telegram" card on Today until they link.
+
+```sh
+npx supabase db push --remote                              # notifications tables, triggers, cron job
+npx supabase functions deploy notify-dispatch --remote=<ref>
+```
+
+**Phone push (off for the pilot).** The server already sends Expo push to any registered device. To turn it on: set
+`PUSH_ENABLED = true` in `apps/mobile/src/features/notifications/push.ts`, add `google-services.json` and
+`android.googleServicesFile` to `app.json`, upload the FCM V1 key and the iOS APNs key with `eas credentials`
+(project already created with `eas init`), and ship a new build: Expo Go can't receive push on Android.
+
 ## Milestones
 
 1. **Foundations** ✅ monorepo, i18n, theme, Sentry, schema + RLS + seed, shared logic with tests, role gate
 2. **Authentication** ✅ password + Telegram bot sign-in, linking, phone verification, reset via bot
 3. **Booking and scheduling** ✅ client booking flow, barber profiles, reschedule/cancel, barber Today/Calendar, walk-ins, time off, hours, no-show limit
-4. Notifications
+4. **Notifications** Telegram bot messages for booking events and reminders; in-app bell list (phone push ready, off)
 5. Earnings, admin, pilot release
 6. Payme and payouts (Phase 2)
 7. Click and automation

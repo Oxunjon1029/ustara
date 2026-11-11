@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { formatUzs, utcToTashkent } from '@ustara/shared';
 import { Avatar, Badge, Button, Icon, Screen } from '../../../src/components';
 import { useAuth } from '../../../src/features/auth/AuthProvider';
+import { BellButton } from '../../../src/features/notifications/NotificationsScreen';
 import { useBarbers, useNextBooking, useServices } from '../../../src/features/catalog/queries';
 import { currentLocale } from '../../../src/i18n';
 import { isDemo } from '../../../src/lib/supabase';
@@ -33,9 +34,7 @@ export default function ClientHome() {
             <Text style={type.small}>{t('client.hello')}</Text>
             <Text style={[type.h1, { fontSize: 26 }]} numberOfLines={2}>{name}</Text>
           </View>
-          <Pressable accessibilityRole="button" accessibilityLabel={t('client.notifications')} style={s.iconBtn} onPress={soon}>
-            <Icon name="bell" size={20} />
-          </Pressable>
+          <BellButton href="/client/notifications" />
         </View>
 
         <View style={s.nextCard}>

@@ -10,6 +10,7 @@ import { SpaceGrotesk_600SemiBold, SpaceGrotesk_700Bold } from '@expo-google-fon
 import { AuthProvider, useAuth } from '../src/features/auth/AuthProvider';
 import { initSentry, Sentry } from '../src/lib/sentry';
 import { DialogHost } from '../src/components/Dialog';
+import { usePushSetup } from '../src/features/notifications/push';
 
 initSentry();
 SplashScreen.preventAutoHideAsync();
@@ -19,6 +20,7 @@ const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 30
 function RootStack() {
   const { state } = useAuth();
   const role = state.status === 'signedIn' ? state.profile.role : null;
+  usePushSetup(state.status === 'signedIn' ? state.profile.user_id : null);
 
   useEffect(() => {
     if (state.status !== 'loading') SplashScreen.hideAsync();

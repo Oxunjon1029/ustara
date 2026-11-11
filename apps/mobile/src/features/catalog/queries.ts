@@ -106,14 +106,14 @@ export const useBarberProfile = (id: string) =>
       if (error) throw error;
       const [p, bs, wh] = await Promise.all([
         supabase.from('profiles').select('full_name').eq('user_id', b.user_id).single(),
-        supabase.from('barber_services').select('price_override_uzs, services(id, name_uz, name_ru, duration_min, price_uzs, is_active, sort)').eq('barber_id', id),
+        supabase.from('barber_services').select('price_override_uzs, duration_override_min, services(id, name_uz, name_ru, duration_min, price_uzs, is_active, sort)').eq('barber_id', id),
         supabase.from('working_hours').select('weekday, start_local, end_local').eq('barber_id', id),
       ]);
-      type Row = { price_override_uzs: number | null; services: Service & { is_active: boolean; sort: number } };
+      type Row = { price_override_uzs: number | null; duration_override_min: number | null; services: Service & { is_active: boolean; sort: number } };
       const services = ((bs.data ?? []) as unknown as Row[])
         .filter((r) => r.services?.is_active)
         .sort((a, c) => a.services.sort - c.services.sort)
-        .map((r) => ({ ...r.services, price: r.price_override_uzs ?? r.services.price_uzs }));
+        .map((r) => ({ ...r.services, duration_min: r.duration_override_min ?? r.services.duration_min, price: r.price_override_uzs ?? r.services.price_uzs }));
       const hours: Record<number, string> = {};
       for (const h of wh.data ?? []) hours[h.weekday] = `${h.start_local.slice(0, 5)}–${h.end_local.slice(0, 5)}`;
       return {

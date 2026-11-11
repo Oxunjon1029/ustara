@@ -8,9 +8,9 @@ import { formatUzs, phoneSchema, tashkentToUtc } from '@ustara/shared';
 import { Button, Icon, Screen } from '../../src/components';
 import { Field, FormError } from '../../src/components/fields';
 import { TimeField } from '../../src/components/TimeField';
-import { bookingActions } from '../../src/features/booking/api';
+import { bookingActions, useMyServiceTerms } from '../../src/features/booking/api';
 import { bookingErrorText, Segmented } from '../../src/features/booking/components';
-import { useServices } from '../../src/features/catalog/queries';
+import { useAuth } from '../../src/features/auth/AuthProvider';
 import { currentLocale } from '../../src/i18n';
 import { localTime, todayLocal } from '../../src/lib/dates';
 import { colors, fonts, radius, type } from '../../src/theme';
@@ -21,7 +21,9 @@ const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
 export default function Walkin() {
   const { t } = useTranslation();
   const locale = currentLocale();
-  const services = useServices();
+  const { state } = useAuth();
+  const mine = useMyServiceTerms(state.status === 'signedIn' ? state.profile.user_id : '');
+  const services = { data: mine.services };
   const queryClient = useQueryClient();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -85,7 +87,7 @@ export default function Walkin() {
                   {on && <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: colors.primary }} />}
                 </View>
                 <Text style={{ flex: 1, fontFamily: fonts.semibold, fontSize: 15, color: colors.ink }}>{locale === 'ru' ? sv.name_ru : sv.name_uz}</Text>
-                <Text style={type.small}>{t('barber.minShort', { count: sv.duration_min })} · {formatUzs(sv.price_uzs, locale, false)}</Text>
+                <Text style={type.small}>{t('barber.minShort', { count: sv.duration })} · {formatUzs(sv.price, locale, false)}</Text>
               </Pressable>
             );
           })}

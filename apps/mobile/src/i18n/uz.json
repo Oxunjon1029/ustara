@@ -180,10 +180,14 @@
       "not_found": "Bron topilmadi",
       "unauthorized": "Ruxsat yoʻq",
       "not_confirmed": "Bron tasdiqlanmagan",
-      "bad_request": "Notoʻgʻri soʻrov"
+      "bad_request": "Notoʻgʻri soʻrov",
+      "bad_price": "Narx 1 000 dan 10 000 000 soʻmgacha boʻlishi kerak.",
+      "bad_duration": "Davomiylik 5 dan 240 daqiqagacha, 5 ga karrali.",
+      "not_barber": "Faqat sartaroshlar uchun."
     },
     "pickTime": "Avval boʻsh vaqtni tanlang",
-    "payAtShopShort": "Sartaroshxonada toʻlanadi"
+    "payAtShopShort": "Sartaroshxonada toʻlanadi",
+    "fromPrice": "{{price}} dan"
   },
   "barber": {
     "bookings": "Bronlar",
@@ -229,5 +233,20 @@
     "reviews": "{{count}} ta baho",
     "hours": "Ish vaqti",
     "bookWith": "{{name}}ga navbat olish"
+  },
+  "myServices": {
+    "title": "Xizmatlarim",
+    "entryHint": "Har bir xizmat uchun vaqt va narx",
+    "hint": "Mijozlar bron qilganda shu vaqt va narxni koʻradi. Oʻzgarish faqat yangi bronlarga taʼsir qiladi.",
+    "duration": "Davomiyligi",
+    "price": "Narxi",
+    "som": "soʻm",
+    "shopDefault": "Salon boʻyicha: {{duration}} daqiqa · {{price}}",
+    "minutesNote": "daqiqa",
+    "priceRange": "Narx 1 000 dan 10 000 000 soʻmgacha boʻlishi kerak."
+  },
+  "notifications": {
+    "empty": "Hozircha bildirishnoma yoʻq. Bron tasdiqlanganda, oʻzgarganda va eslatmalar shu yerda chiqadi.",
+    "linkTelegram": "Yangi bronlar va bekor qilishlar haqida Telegramda xabar olish uchun hisobingizni ulang."
   }
 }

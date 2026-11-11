@@ -1,4 +1,4 @@
-import { ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -7,7 +7,7 @@ import { useAuth } from '../features/auth/AuthProvider';
 import { isDemo, supabase } from '../lib/supabase';
 import { colors, fonts, type } from '../theme';
 
-function useTelegramLink(userId: string) {
+export function useTelegramLink(userId: string) {
   return useQuery({
     queryKey: ['telegramLink', userId],
     enabled: !isDemo && !!userId,
@@ -60,6 +60,19 @@ export function ProfileScreen() {
             />
           )}
         </Card>
+
+        {p.role === 'barber' && (
+          <Pressable accessibilityRole="button" onPress={() => router.push('/barber/services')}>
+            <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <Icon name="scissors" color={colors.primary} />
+              <View style={{ flex: 1 }}>
+                <Text style={[type.label, { fontSize: 15 }]}>{t('myServices.title')}</Text>
+                <Text style={type.small}>{t('myServices.entryHint')}</Text>
+              </View>
+              <View style={{ transform: [{ rotate: '180deg' }] }}><Icon name="back" size={18} color={colors.inkMuted} /></View>
+            </Card>
+          </Pressable>
+        )}
 
         <Card style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <Text style={type.label}>{t('common.language')}</Text>

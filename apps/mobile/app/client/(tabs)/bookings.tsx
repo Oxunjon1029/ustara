@@ -57,7 +57,7 @@ export default function Bookings() {
   return (
     <Screen>
       <ScrollView
-        contentContainerStyle={{ padding: 20, paddingTop: 24, gap: 16 }}
+        contentContainerStyle={{ padding: 20, paddingTop: 8, gap: 16 }}
         refreshControl={<RefreshControl refreshing={bookings.isRefetching} onRefresh={refresh} />}
       >
         <Text style={type.h1}>{t('tabs.bookings')}</Text>

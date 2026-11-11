@@ -32,22 +32,26 @@ async function login(body: { login?: unknown; password?: unknown }, ip: string) 
   const password = typeof body.password === 'string' ? body.password : '';
   if (!loginId || !password) return fail('invalid_credentials', 401);
 
-  if ((await countAttempts(`ip:${ip}`, WINDOW_MIN)) >= MAX_FAILS) return fail('too_many_attempts', 429);
-
+  // One round trip: account, its auth email, and the IP / account failure counts.
   const phone = normalizePhone(loginId);
-  const { data: rows } = await admin.rpc('find_login', { p_login: phone ?? loginId });
-  const acct = rows?.[0] as { user_id: string; locked_until: string | null; failed_logins: number } | undefined;
-  if (!acct) {
+  const { data: rows, error: lookupErr } = await admin.rpc('login_lookup', {
+    p_login: phone ?? loginId, p_ip_key: `ip:${ip}`, p_window_min: WINDOW_MIN,
+  });
+  if (lookupErr) throw lookupErr;
+  const acct = rows?.[0] as {
+    user_id: string | null; email: string | null; locked_until: string | null; failed_logins: number; ip_fails: number; acct_fails: number;
+  } | undefined;
+  if (!acct || acct.ip_fails >= MAX_FAILS) return fail('too_many_attempts', 429);
+  if (!acct.user_id) {
     await recordAttempt(`ip:${ip}`);
     return fail('invalid_credentials', 401);
   }
   if (acct.locked_until && new Date(acct.locked_until) > new Date()) {
     return fail('locked', 423, { until: acct.locked_until });
   }
-  if ((await countAttempts(`acct:${acct.user_id}`, WINDOW_MIN)) >= MAX_FAILS) return fail('too_many_attempts', 429);
+  if (acct.acct_fails >= MAX_FAILS) return fail('too_many_attempts', 429);
 
-  const { data: u } = await admin.auth.admin.getUserById(acct.user_id);
-  const email = u.user?.email;
+  const email = acct.email;
   const { data, error } = email
     ? await anonClient().auth.signInWithPassword({ email, password })
     : { data: null, error: new Error('no_email') };
@@ -66,7 +70,10 @@ async function login(body: { login?: unknown; password?: unknown }, ip: string) 
     return fail('invalid_credentials', 401);
   }
 
-  await admin.from('profiles').update({ failed_logins: 0, locked_until: null }).eq('user_id', acct.user_id);
+  // Only write when there is something to reset (saves a round trip on normal logins).
+  if (acct.failed_logins > 0 || acct.locked_until) {
+    await admin.from('profiles').update({ failed_logins: 0, locked_until: null }).eq('user_id', acct.user_id);
+  }
   return json({ session: pickSession(data.session) });
 }
 

@@ -6,10 +6,10 @@ import { useTranslation } from 'react-i18next';
 import { colors, fonts, radius, type } from '../theme';
 import { setLocale } from '../i18n';
 
-/** Tab screens only need the top inset (the tab bar handles the bottom); full-screen pages pass `fullScreen`. */
+/** Tab screens sit under AppHeader and above the tab bar (no insets needed); full-screen pages pass `fullScreen`. */
 export function Screen({ children, style, fullScreen }: { children: ReactNode; style?: StyleProp<ViewStyle>; fullScreen?: boolean }) {
   return (
-    <SafeAreaView edges={fullScreen ? ['top', 'bottom'] : ['top']} style={[{ flex: 1, backgroundColor: colors.ground }, style]}>
+    <SafeAreaView edges={fullScreen ? ['top', 'bottom'] : []} style={[{ flex: 1, backgroundColor: colors.ground }, style]}>
       {children}
     </SafeAreaView>
   );
@@ -112,7 +112,7 @@ export function LanguageSwitch() {
 export function Placeholder({ title }: { title: string }) {
   const { t } = useTranslation();
   return (
-    <Screen style={{ padding: 20 }}>
+    <Screen style={{ padding: 20, paddingTop: 8 }}>
       <Text style={type.h1}>{title}</Text>
       <Card style={{ marginTop: 16 }}>
         <Text style={type.small}>{t('common.soon')}</Text>

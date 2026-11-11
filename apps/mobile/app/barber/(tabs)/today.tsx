@@ -6,7 +6,6 @@ import { useTelegramLink } from '../../../src/components/ProfileScreen';
 import { useAuth } from '../../../src/features/auth/AuthProvider';
 import { useBarberDay, useMyBarberId } from '../../../src/features/booking/api';
 import { DayList } from '../../../src/features/booking/DayList';
-import { BellButton } from '../../../src/features/notifications/NotificationsScreen';
 import { currentLocale } from '../../../src/i18n';
 import { longDate, todayLocal } from '../../../src/lib/dates';
 import { isDemo } from '../../../src/lib/supabase';
@@ -32,15 +31,12 @@ export default function Today() {
   return (
     <Screen>
       <ScrollView
-        contentContainerStyle={{ padding: 20, paddingTop: 24, gap: 18 }}
+        contentContainerStyle={{ padding: 20, paddingTop: 8, gap: 18 }}
         refreshControl={<RefreshControl refreshing={day.isRefetching} onRefresh={() => { day.refetch(); }} />}
       >
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          <View style={{ flex: 1 }}>
-            <Text style={type.small}>{longDate(date, locale)}</Text>
-            <Text style={type.h1}>{t('tabs.today')}</Text>
-          </View>
-          <BellButton href="/barber/notifications" />
+        <View>
+          <Text style={type.small}>{longDate(date, locale)}</Text>
+          <Text style={type.h1}>{t('tabs.today')}</Text>
         </View>
         {!tg.isLoading && !tg.data && (
           <View style={st.tgCard}>

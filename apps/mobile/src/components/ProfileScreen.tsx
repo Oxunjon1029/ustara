@@ -1,4 +1,5 @@
 import { Pressable, ScrollView, Text, View } from 'react-native';
+import { useState } from 'react';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -24,13 +25,14 @@ export function ProfileScreen() {
   const { state, signOut } = useAuth();
   const userId = state.status === 'signedIn' ? state.profile.user_id : '';
   const tgLink = useTelegramLink(userId);
+  const [signingOut, setSigningOut] = useState(false);
   if (state.status !== 'signedIn') return null;
   const p = state.profile;
   const linked = isDemo || !!tgLink.data;
 
   return (
     <Screen>
-      <ScrollView contentContainerStyle={{ padding: 20, gap: 16 }}>
+      <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 8, gap: 16 }}>
         <Text style={type.h1}>{t('tabs.profile')}</Text>
         <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <Avatar name={p.full_name} size={48} />
@@ -78,7 +80,20 @@ export function ProfileScreen() {
           <Text style={type.label}>{t('common.language')}</Text>
           <LanguageSwitch />
         </Card>
-        <Button variant="outline" label={t('common.signOut')} onPress={signOut} style={{ borderColor: colors.dangerBorder }} />
+        <Button
+          variant="outline"
+          label={t('common.signOut')}
+          loading={signingOut}
+          onPress={async () => {
+            setSigningOut(true);
+            try {
+              await signOut();
+            } finally {
+              setSigningOut(false);
+            }
+          }}
+          style={{ borderColor: colors.dangerBorder }}
+        />
       </ScrollView>
     </Screen>
   );

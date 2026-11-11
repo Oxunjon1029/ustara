@@ -118,18 +118,16 @@ export interface DayEntry {
 }
 
 /** A barber's bookings and time off for one local day, merged and sorted. */
-export const useBarberDay = (barberId: string | null, date: string) =>
-  useQuery({
-    queryKey: ['barberDay', barberId, date],
-    enabled: !!barberId,
-    queryFn: async (): Promise<DayEntry[]> => {
-      const { from, to } = dayBounds(date);
+/** A barber's bookings (and optionally time off) between two instants, with client names, sorted by time. */
+async function fetchBarberEntries(barberId: string, from: Date, to: Date, withOff: boolean): Promise<DayEntry[]> {
       const [bk, off] = await Promise.all([
-        supabase.from('bookings').select(BOOKING_COLS).eq('barber_id', barberId!)
+        supabase.from('bookings').select(BOOKING_COLS).eq('barber_id', barberId)
           .gte('starts_at', from.toISOString()).lt('starts_at', to.toISOString())
-          .not('status', 'in', '(cancelled,expired)').order('starts_at'),
-        supabase.from('time_off').select('id, kind, note, starts_at, ends_at').eq('barber_id', barberId!)
-          .lt('starts_at', to.toISOString()).gt('ends_at', from.toISOString()),
+          .not('status', 'in', '(cancelled,expired)').order('starts_at').limit(500),
+        withOff
+          ? supabase.from('time_off').select('id, kind, note, starts_at, ends_at').eq('barber_id', barberId)
+              .lt('starts_at', to.toISOString()).gt('ends_at', from.toISOString())
+          : Promise.resolve({ data: [] as { id: string; kind: 'break' | 'day_off' | 'vacation'; note: string | null; starts_at: string; ends_at: string }[] }),
       ]);
       if (bk.error) throw bk.error;
       const rows = bk.data as unknown as BookingRow[];
@@ -153,7 +151,24 @@ export const useBarberDay = (barberId: string | null, date: string) =>
         ...(off.data ?? []).map((o) => ({ kind: 'off' as const, starts_at: o.starts_at, ends_at: o.ends_at, off: o })),
       ];
       return entries.sort((a, b) => Date.parse(a.starts_at) - Date.parse(b.starts_at));
+}
+
+export const useBarberDay = (barberId: string | null, date: string) =>
+  useQuery({
+    queryKey: ['barberDay', barberId, date],
+    enabled: !!barberId,
+    queryFn: () => {
+      const { from, to } = dayBounds(date);
+      return fetchBarberEntries(barberId!, from, to, true);
     },
+  });
+
+/** Bookings over a range of local dates (inclusive). Shares the 'barberDay' key prefix so actions refresh it too. */
+export const useBarberRange = (barberId: string | null, fromDate: string, toDate: string) =>
+  useQuery({
+    queryKey: ['barberDay', 'range', barberId, fromDate, toDate],
+    enabled: !!barberId,
+    queryFn: () => fetchBarberEntries(barberId!, dayBounds(fromDate).from, dayBounds(toDate).to, false),
   });
 
 export const useMyBarberId = (userId: string) =>

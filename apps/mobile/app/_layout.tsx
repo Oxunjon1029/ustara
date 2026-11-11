@@ -10,6 +10,7 @@ import { SpaceGrotesk_600SemiBold, SpaceGrotesk_700Bold } from '@expo-google-fon
 import { AuthProvider, useAuth } from '../src/features/auth/AuthProvider';
 import { initSentry, Sentry } from '../src/lib/sentry';
 import { DialogHost } from '../src/components/Dialog';
+import { BrandLoader } from '../src/components/BrandLoader';
 import { usePushSetup } from '../src/features/notifications/push';
 
 initSentry();
@@ -25,7 +26,8 @@ function RootStack() {
   useEffect(() => {
     if (state.status !== 'loading') SplashScreen.hideAsync();
   }, [state.status]);
-  if (state.status === 'loading') return null;
+  // Native splash hands over to the animated loader while the session is restored.
+  if (state.status === 'loading') return <BrandLoader onReady={() => SplashScreen.hideAsync()} />;
 
   return (
     <Stack screenOptions={{ headerShown: false }}>

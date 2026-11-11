@@ -247,6 +247,18 @@
   },
   "notifications": {
     "empty": "Hozircha bildirishnoma yoʻq. Bron tasdiqlanganda, oʻzgarganda va eslatmalar shu yerda chiqadi.",
-    "linkTelegram": "Yangi bronlar va bekor qilishlar haqida Telegramda xabar olish uchun hisobingizni ulang."
+    "linkTelegram": "Yangi bronlar va bekor qilishlar haqida Telegramda xabar olish uchun hisobingizni ulang.",
+    "client": "Mijoz",
+    "openBookings": "Bronlarimga oʻtish",
+    "openCalendar": "Bugungi bronlarga oʻtish",
+    "bookingGone": "Bu bron endi mavjud emas."
+  },
+  "calendar": {
+    "byDay": "Kun boʻyicha",
+    "all": "Barcha bronlar",
+    "upcoming": "Kelgusi",
+    "past": "Oʻtgan {{days}} kun",
+    "none": "Bron yoʻq",
+    "count": "Jami: {{count}} ta bron"
   }
 }

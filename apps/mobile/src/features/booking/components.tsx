@@ -14,12 +14,14 @@ export function bookingErrorText(t: TFunction, code: string | null): string | nu
 }
 
 /** Horizontal strip of dates (design: ClientSlots). */
-export function DateStrip({ dates, value, onChange, locale, disabled }: {
+export function DateStrip({ dates, value, onChange, locale, disabled, marked }: {
   dates: string[];
   value: string;
   onChange: (d: string) => void;
   locale: Locale;
   disabled?: (d: string) => boolean;
+  /** Shows a dot under the day (e.g. it has bookings). */
+  marked?: (d: string) => boolean;
 }) {
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }}>
@@ -40,6 +42,7 @@ export function DateStrip({ dates, value, onChange, locale, disabled }: {
             <Text style={{ fontFamily: fonts.semibold, fontSize: 18, color: active ? '#fff' : off ? colors.disabledInk : colors.ink }}>
               {Number(d.slice(8))}
             </Text>
+            {marked && <View style={[s.mark, { backgroundColor: marked(d) ? (active ? '#fff' : colors.primary) : 'transparent' }]} />}
           </Pressable>
         );
       })}
@@ -116,6 +119,7 @@ export const statusTone = (status: string): 'ok' | 'muted' | 'bad' =>
 
 const s = StyleSheet.create({
   day: { width: 52, height: 64, borderRadius: radius.md, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', gap: 2 },
+  mark: { width: 5, height: 5, borderRadius: 3 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   slot: {
     width: '22.9%', height: 44, borderRadius: radius.sm, borderWidth: 1, borderColor: colors.border,

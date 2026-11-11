@@ -7,9 +7,15 @@ export interface FnResult<T> {
   extra?: Record<string, unknown>;
 }
 
+/**
+ * Run Edge Functions in the database's region (e.g. ap-northeast-2): they make several DB/Auth calls,
+ * so running next to the database is much faster than running near the phone.
+ */
+const REGION = process.env.EXPO_PUBLIC_SUPABASE_REGION;
+
 /** Call an Edge Function and normalise errors to the `{ error: code }` shape the functions return. */
 export async function callFn<T>(name: string, body: Record<string, unknown>): Promise<FnResult<T>> {
-  const { data, error } = await supabase.functions.invoke(name, { body });
+  const { data, error } = await supabase.functions.invoke(name, { body, headers: REGION ? { 'x-region': REGION } : undefined });
   if (!error) return { data: data as T };
   const ctx = (error as { context?: Response }).context;
   if (ctx && typeof ctx.json === 'function') {

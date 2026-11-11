@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 import { formatUzs, utcToTashkent } from '@ustara/shared';
 import { Avatar, Badge, Button, Icon, Screen } from '../../../src/components';
 import { useAuth } from '../../../src/features/auth/AuthProvider';
-import { BellButton } from '../../../src/features/notifications/NotificationsScreen';
 import { useBarbers, useNextBooking, useServices } from '../../../src/features/catalog/queries';
 import { currentLocale } from '../../../src/i18n';
 import { isDemo } from '../../../src/lib/supabase';
@@ -34,7 +33,6 @@ export default function ClientHome() {
             <Text style={type.small}>{t('client.hello')}</Text>
             <Text style={[type.h1, { fontSize: 26 }]} numberOfLines={2}>{name}</Text>
           </View>
-          <BellButton href="/client/notifications" />
         </View>
 
         <View style={s.nextCard}>
@@ -107,7 +105,7 @@ export default function ClientHome() {
 }
 
 const s = StyleSheet.create({
-  content: { padding: 20, paddingTop: 24, gap: 22 },
+  content: { padding: 20, paddingTop: 8, gap: 22 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   iconBtn: { width: 44, height: 44, borderRadius: radius.md, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },

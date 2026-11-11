@@ -17,7 +17,7 @@
     "android": {
       "package": "uz.ustara.app",
       "adaptiveIcon": {
-        "backgroundColor": "#F5F3EF",
+        "backgroundColor": "#1F5F4A",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -36,8 +36,8 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#F5F3EF",
-          "image": "./assets/icon.png",
-          "imageWidth": 120
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 96
         }
       ],
       "@sentry/react-native",

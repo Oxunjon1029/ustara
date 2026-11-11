@@ -2,6 +2,7 @@ import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '.';
+import { AppHeader } from './AppHeader';
 import { colors, fonts } from '../theme';
 
 type IconName = Parameters<typeof Icon>[0]['name'];
@@ -13,7 +14,8 @@ export function RoleTabs({ tabs }: { tabs: { name: string; label: string; icon: 
   return (
     <Tabs
       screenOptions={{
-        headerShown: false,
+        // One app header (logo + notifications) above every tab screen.
+        header: () => <AppHeader />,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.inkMuted,
         // Explicit: 60px of tab content plus the system navigation area (3-button bar or gesture handle).

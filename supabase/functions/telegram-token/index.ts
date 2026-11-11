@@ -2,6 +2,7 @@
 // POST { action: 'create', purpose: 'login'|'link'|'reset' }  → { token, url, expires_at }   ('link' needs a signed-in user)
 // POST { action: 'poll', token }                             → { status, session? }
 // POST { action: 'reset_password', token, password }         → { session }
+// POST { action: 'webapp', init_data }                       → { session } | { status: 'not_linked' }   (Telegram Mini App)
 import {
   admin, anonClient, clientIp, cors, countAttempts, fail, json, pickSession, randomToken, recordAttempt, sessionFor, sha256,
   userFromRequest,
@@ -19,6 +20,7 @@ Deno.serve(async (req) => {
       case 'create': return await create(req, body.purpose);
       case 'poll': return await poll(body.token);
       case 'reset_password': return await resetPassword(body.token, body.password);
+      case 'webapp': return await webapp(body.init_data);
       default: return fail('bad_request');
     }
   } catch (e) {
@@ -97,4 +99,49 @@ async function resetPassword(token: unknown, password: unknown) {
   const { data, error: signInErr } = await anonClient().auth.signInWithPassword({ email: u.user.email, password });
   if (signInErr || !data.session) throw signInErr ?? new Error('no_session');
   return json({ session: pickSession(data.session) });
+}
+
+// Telegram Mini App ----------------------------------------------------------
+
+const enc = new TextEncoder();
+async function hmac(key: Uint8Array, data: string) {
+  const k = await crypto.subtle.importKey('raw', key, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  return new Uint8Array(await crypto.subtle.sign('HMAC', k, enc.encode(data)));
+}
+const hex = (b: Uint8Array) => [...b].map((x) => x.toString(16).padStart(2, '0')).join('');
+
+/**
+ * Validates Telegram.WebApp.initData (https://core.telegram.org/bots/webapps#validating-data-received-via-the-mini-app):
+ * HMAC-SHA256 of the sorted fields with key HMAC-SHA256(WebAppData, bot token). Returns the Telegram user, or null.
+ */
+async function verifyInitData(initData: string): Promise<{ id: number } | null> {
+  const token = Deno.env.get('TELEGRAM_BOT_TOKEN');
+  if (!token || !initData) return null;
+  const params = new URLSearchParams(initData);
+  const hash = params.get('hash');
+  if (!hash) return null;
+  params.delete('hash');
+  const check = [...params.entries()]
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+    .map(([k, v]) => `${k}=${v}`)
+    .join('\n');
+  const secret = await hmac(enc.encode('WebAppData'), token);
+  if (hex(await hmac(secret, check)) !== hash) return null;
+  const age = Date.now() / 1000 - Number(params.get('auth_date'));
+  if (!(age < 24 * 3600)) return null; // stale launch data
+  try {
+    const user = JSON.parse(params.get('user') ?? 'null');
+    return typeof user?.id === 'number' ? user : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Mini App launch: a Telegram account linked to an Ustara account signs in with no password. */
+async function webapp(initData: unknown) {
+  const user = typeof initData === 'string' ? await verifyInitData(initData) : null;
+  if (!user) return fail('invalid_init_data', 401);
+  const { data: link } = await admin.from('telegram_links').select('user_id').eq('telegram_user_id', user.id).maybeSingle();
+  if (!link) return json({ status: 'not_linked' });
+  return json({ session: await sessionFor(link.user_id) });
 }

@@ -1,7 +1,7 @@
 // Delivers pending notifications by Expo push (Android + iOS via FCM/APNs) and Telegram.
 // Called by the database only (pg_net after each insert, pg_cron every minute) with a shared secret.
 import { admin, fail, json } from '../_shared/util.ts';
-import { send } from '../_shared/telegram.ts';
+import { openAppButton, send } from '../_shared/telegram.ts';
 
 type Pending = { id: string; title: string; body: string; url: string | null; chat_id: number | null; tokens: string[] | null };
 type Ticket = { status: 'ok' | 'error'; message?: string; details?: { error?: string } };
@@ -55,7 +55,7 @@ Deno.serve(async (req) => {
       sendPush(pushList),
       Promise.all(pending.map(async (n) => {
         if (!n.chat_id) return 'no_link';
-        const r = await send(n.chat_id, `<b>${esc(n.title)}</b>\n${esc(n.body)}`);
+        const r = await send(n.chat_id, `<b>${esc(n.title)}</b>\n${esc(n.body)}`, openAppButton(n.url ?? ''));
         return r ? 'sent' : 'failed';
       })),
     ]);

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-// One-time Telegram bot setup for the linked Supabase project.
-//   node scripts/setup-telegram.mjs
+// One-time Telegram bot setup for a Supabase project (the linked one by default).
+//   node scripts/setup-telegram.mjs                 # linked (dev) project
+//   node scripts/setup-telegram.mjs --ref=<ref>     # another project, e.g. production
 // Asks for the BotFather token (never stored in the repo), saves it as a Supabase secret
 // together with the bot username and a fresh webhook secret, then registers the webhook.
 import { randomBytes } from 'node:crypto';
@@ -9,14 +10,15 @@ import { spawnSync } from 'node:child_process';
 import { createInterface } from 'node:readline/promises';
 
 const refFile = new URL('../supabase/.temp/project-ref', import.meta.url);
-let ref;
+let ref = process.argv.find((a) => a.startsWith('--ref='))?.slice(6);
 try {
-  ref = readFileSync(refFile, 'utf8').trim();
+  ref ??= readFileSync(refFile, 'utf8').trim();
 } catch {
   console.error('No linked project. Run: npx supabase link --project-ref <ref>');
   process.exit(1);
 }
 
+console.log(`Project: ${ref}`);
 const rl = createInterface({ input: process.stdin, output: process.stdout });
 const token = (await rl.question('Bot token from @BotFather: ')).trim();
 rl.close();

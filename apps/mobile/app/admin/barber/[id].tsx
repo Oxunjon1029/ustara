@@ -93,7 +93,7 @@ function Form({ b }: { b: AdminBarber }) {
           if (res.error) return setError(bookingErrorText(t, res.error));
           const text = b.username ? credentialsText(t, b.username, password) : password;
           showDialog(t('admin.passwordChanged'), text, [
-            { text: t('admin.sendLogin'), onPress: () => { Share.share({ message: text }); } },
+            { text: t('admin.sendLogin'), onPress: () => { Share.share({ message: text }).catch(() => {}); } },
             { text: t('common.done'), style: 'cancel' },
           ]);
         },

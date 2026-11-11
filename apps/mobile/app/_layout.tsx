@@ -1,6 +1,6 @@
 import '../src/i18n';
 import { useEffect } from 'react';
-import { Stack } from 'expo-router';
+import { router, Stack, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
@@ -12,8 +12,10 @@ import { initSentry, Sentry } from '../src/lib/sentry';
 import { DialogHost } from '../src/components/Dialog';
 import { BrandLoader } from '../src/components/BrandLoader';
 import { usePushSetup } from '../src/features/notifications/push';
+import { initTelegram, telegram } from '../src/lib/telegram';
 
 initSentry();
+initTelegram();
 SplashScreen.preventAutoHideAsync();
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 30_000, retry: 2 } } });
 
@@ -22,6 +24,7 @@ function RootStack() {
   const { state } = useAuth();
   const role = state.status === 'signedIn' ? state.profile.role : null;
   usePushSetup(state.status === 'signedIn' ? state.profile.user_id : null);
+  useTelegramBackButton();
 
   useEffect(() => {
     if (state.status !== 'loading') SplashScreen.hideAsync();
@@ -49,6 +52,23 @@ function RootStack() {
       </Stack.Protected>
     </Stack>
   );
+}
+
+/** In the Telegram Mini App, Telegram's header back button appears on pushed pages (not on tabs or sign-in). */
+function useTelegramBackButton() {
+  const segments = useSegments() as string[];
+  const key = segments.join('/');
+  useEffect(() => {
+    if (!telegram) return;
+    const back = () => router.back();
+    const root = segments.length === 0 || segments.includes('(tabs)') || segments.includes('(auth)');
+    if (!root && router.canGoBack()) {
+      telegram.BackButton.show();
+      telegram.BackButton.onClick(back);
+    } else telegram.BackButton.hide();
+    return () => telegram!.BackButton.offClick(back);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
 }
 
 function RootLayout() {

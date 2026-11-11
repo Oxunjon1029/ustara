@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -167,7 +167,7 @@ export function NotificationsScreen() {
     if (!hasUnread) return;
     const timer = setTimeout(async () => {
       await supabase.rpc('mark_notifications_read', {});
-      Notifications.setBadgeCountAsync(0).catch(() => {});
+      if (Platform.OS !== 'web') Notifications.setBadgeCountAsync(0).catch(() => {});
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
     }, 1200); // let the unread dots be seen first
     return () => clearTimeout(timer);

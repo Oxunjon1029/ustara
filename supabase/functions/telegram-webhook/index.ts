@@ -1,7 +1,7 @@
 // Telegram bot webhook: /start <token>, contact sharing, confirm/cancel buttons.
 // Telegram must call this with the secret set via setWebhook(secret_token=TELEGRAM_WEBHOOK_SECRET).
 import { admin, normalizePhone, randomToken, sha256, syntheticEmail } from '../_shared/util.ts';
-import { SHARE_BUTTON, send, t, tg } from '../_shared/telegram.ts';
+import { SHARE_BUTTON, send, t, tg, openAppButton, WEBAPP_URL } from '../_shared/telegram.ts';
 
 const SECRET = Deno.env.get('TELEGRAM_WEBHOOK_SECRET') ?? '';
 const CONFIRMED_GRACE_MIN = 10; // time to come back to the app after confirming
@@ -41,7 +41,7 @@ const expire = (id: string) => admin.from('auth_tokens').update({ status: 'expir
 async function onText(msg: TgMessage) {
   const from = msg.from!;
   const [cmd, payload] = (msg.text ?? '').trim().split(/\s+/, 2);
-  if (cmd !== '/start' || !payload) return void (await send(msg.chat.id, t('hello', guessLocale(from))));
+  if (cmd !== '/start' || !payload) return void (await send(msg.chat.id, t(WEBAPP_URL ? 'helloApp' : 'hello', guessLocale(from)), openAppButton()));
 
   const { data } = await admin.from('auth_tokens').select('*').eq('token_hash', await sha256(payload)).maybeSingle();
   const row = data as TokenRow | null;

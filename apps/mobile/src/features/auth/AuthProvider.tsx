@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { Locale, Role } from '@ustara/shared';
 import { callFn, type SessionTokens } from '../../lib/api';
+import { telegram } from '../../lib/telegram';
 import { isDemo, supabase } from '../../lib/supabase';
 import { unregisterPush } from '../notifications/push';
 import i18n from '../../i18n';
@@ -67,7 +68,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (isDemo) return;
-    supabase.auth.getSession().then(({ data }) => apply(data.session?.user.id));
+    supabase.auth.getSession().then(async ({ data }) => {
+      // Telegram Mini App with no saved session: sign in from Telegram's signed launch data (linked accounts only).
+      if (!data.session && telegram) {
+        const res = await callFn<{ session?: SessionTokens; status?: string }>('telegram-token', { action: 'webapp', init_data: telegram.initData });
+        if (res.data?.session) {
+          const { data: s } = await supabase.auth.setSession(res.data.session);
+          return apply(s.user?.id);
+        }
+      }
+      return apply(data.session?.user.id);
+    });
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
       // Defer: calling Supabase inside this callback can deadlock the auth lock.
       if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED') setTimeout(() => apply(session?.user.id), 0);

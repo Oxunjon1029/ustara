@@ -9,6 +9,7 @@ import { useAuth } from '../src/features/auth/AuthProvider';
 import { errorText } from '../src/features/auth/errors';
 import { callFn, type SessionTokens } from '../src/lib/api';
 import { colors, fonts, radius, type } from '../src/theme';
+import { openUrl } from '../src/lib/telegram';
 
 type Purpose = 'login' | 'link' | 'reset';
 type Status = 'starting' | 'pending' | 'confirmed' | 'expired' | 'error';
@@ -41,7 +42,7 @@ export default function TelegramWait() {
     }
     setLink({ token: res.data.token, url: res.data.url, expiresAt: Date.parse(res.data.expires_at) });
     setStatus('pending');
-    Linking.openURL(res.data.url).catch(() => {});
+    openUrl(res.data.url);
   }, [purpose, t]);
 
   useEffect(() => {
@@ -142,7 +143,7 @@ export default function TelegramWait() {
           variant="telegram"
           label={canReopen ? t('telegram.reopen') : t('telegram.newLink')}
           loading={status === 'starting'}
-          onPress={() => (canReopen ? Linking.openURL(link.url).catch(() => {}) : start())}
+          onPress={() => (canReopen ? openUrl(link.url) : start())}
         />
         <Button
           variant="outline"

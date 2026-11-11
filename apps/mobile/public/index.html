@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="uz">
+  <head>
+    <meta charset="utf-8" />
+    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#F5F3EF" />
+    <title>%WEB_TITLE%</title>
+    <!--
+      Telegram Mini App SDK. Loaded before the app so it reads the launch parameters (#tgWebAppData=…)
+      before the router changes the URL. Outside Telegram it does nothing.
+    -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
+    <style id="expo-reset">
+      html,
+      body {
+        height: 100%;
+        background-color: #f5f3ef;
+      }
+      body {
+        overflow: hidden;
+        overscroll-behavior: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+      /* Always the full window. (Telegram's --tg-viewport-stable-height can stay tiny after the Mini App
+         was minimised to open the bot chat, which squashed the app into a "landscape" strip.) */
+      #root {
+        display: flex;
+        height: 100%;
+        flex: 1;
+      }
+    </style>
+  </head>
+
+  <body>
+    <noscript> Ilovadan foydalanish uchun JavaScript yoqing. / Включите JavaScript. </noscript>
+    <div id="root"></div>
+  </body>
+</html>

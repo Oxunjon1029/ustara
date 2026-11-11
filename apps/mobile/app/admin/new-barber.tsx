@@ -38,7 +38,7 @@ export default function NewBarber() {
     const text = credentialsText(t, username.trim(), password);
     router.replace({ pathname: '/admin/barber/[id]', params: { id: res.data.barber_id } });
     showDialog(t('admin.barberCreated', { name: name.trim() }), text, [
-      { text: t('admin.sendLogin'), onPress: () => { Share.share({ message: text }); } },
+      { text: t('admin.sendLogin'), onPress: () => { Share.share({ message: text }).catch(() => {}); } },
       { text: t('common.done'), style: 'cancel' },
     ]);
   };

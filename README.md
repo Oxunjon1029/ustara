@@ -82,6 +82,25 @@ npx supabase functions deploy notify-dispatch --remote=<ref>
 `android.googleServicesFile` to `app.json`, upload the FCM V1 key and the iOS APNs key with `eas credentials`
 (project already created with `eas init`), and ship a new build: Expo Go can't receive push on Android.
 
+## Telegram Mini App and environments
+
+The app also runs as a Telegram Mini App: the same Expo code exported for the web ( loads
+Telegram's SDK). Inside Telegram a linked account signs in automatically:  (action ) checks the
+signed launch data with the bot token.
+
+| Branch | Supabase | Mini App | Bot |
+| --- | --- | --- | --- |
+|  | dev (, Seoul) | https://ustara-dev.pages.dev | dev bot |
+|  | production (, London) | https://ustara.pages.dev | production bot |
+
+Work on ; merge into  after testing. Pushing either branch deploys its Mini App through
+ (repository secrets are listed at the top of that file). Database migrations and Edge
+Functions are deployed by hand, per project: .
+
+Manual deploy from :  or  (reads  / ).
+New project setup: , , secret
+ (shows the bot's open-app button), and .
+
 ## Milestones
 
 1. **Foundations** ✅ monorepo, i18n, theme, Sentry, schema + RLS + seed, shared logic with tests, role gate

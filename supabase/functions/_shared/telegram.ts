@@ -6,6 +6,15 @@ export const BOT_USERNAME = Deno.env.get('TELEGRAM_BOT_USERNAME') ?? '';
 /** Button labels are a single line, so this one is bilingual instead of going through t(). */
 export const SHARE_BUTTON = '📱 Raqamni ulashish / Поделиться номером';
 
+/** Telegram Mini App address (secret WEBAPP_URL); without it no 'open app' buttons are shown. */
+export const WEBAPP_URL = (Deno.env.get('WEBAPP_URL') ?? '').replace(/\/+$/, '');
+
+/** Inline 'open the app' button (optionally at an app path), for private chats. */
+export const openAppButton = (path = '') =>
+  WEBAPP_URL
+    ? { reply_markup: { inline_keyboard: [[{ text: '✂️ Ilovani ochish / Открыть приложение', web_app: { url: WEBAPP_URL + path } }]] } }
+    : {};
+
 export async function tg<T = unknown>(method: string, body: Record<string, unknown>): Promise<T | null> {
   if (!TOKEN) return null;
   const res = await fetch(`https://api.telegram.org/bot${TOKEN}/${method}`, {
@@ -64,6 +73,10 @@ export const T = {
   hello: {
     uz: 'Salom! Bu Ustara boti. Kirish uchun ilovada «Telegram orqali kirish»ni bosing.',
     ru: 'Здравствуйте! Это бот Ustara. Для входа нажмите «Войти через Telegram» в приложении.',
+  },
+  helloApp: {
+    uz: 'Salom! Bu Ustara — sartaroshga onlayn navbat.\n\nNavbat olish, bronlaringizni koʻrish va bekor qilish uchun pastdagi «Ilovani ochish» tugmasini bosing. Eslatmalar shu chatga keladi.',
+    ru: 'Здравствуйте! Это Ustara — онлайн-запись к барберу.\n\nЧтобы записаться, посмотреть или отменить записи, нажмите «Открыть приложение» ниже. Напоминания будут приходить в этот чат.',
   },
   locked: {
     uz: '⚠️ Hisobingizga 5 marta notoʻgʻri parol bilan kirishga urinildi. Hisob 15 daqiqaga bloklandi. Agar bu siz boʻlmasangiz, parolni tiklang.',

@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -22,11 +23,12 @@ export function RoleTabs({ tabs }: { tabs: { name: string; label: string; icon: 
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.chrome,
-          height: 60 + insets.bottom,
+          // Web (Telegram Mini App) text renders taller, so give labels a bit more room there.
+          height: (Platform.OS === 'web' ? 66 : 60) + insets.bottom,
           paddingTop: 6,
-          paddingBottom: insets.bottom + 6,
+          paddingBottom: insets.bottom + (Platform.OS === 'web' ? 8 : 6),
         },
-        tabBarLabelStyle: { fontFamily: fonts.semibold, fontSize: 12 },
+        tabBarLabelStyle: { fontFamily: fonts.semibold, fontSize: 12, lineHeight: 16 },
       }}
     >
       {tabs.map((tab) => (

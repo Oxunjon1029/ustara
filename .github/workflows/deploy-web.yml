@@ -1,4 +1,5 @@
 # Telegram Mini App (web build) → Cloudflare Pages.
+#   (each Pages project's production branch is the git branch that deploys to it: ustara-dev ← stage, ustara ← main)
 #   push to stage → dev server  → https://ustara-dev.pages.dev  (dev bot)
 #   push to main  → production → https://ustara.pages.dev      (production bot)
 # Database migrations and Edge Functions are NOT deployed here; they stay a manual, approved step.
@@ -60,4 +61,4 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: npx --yes wrangler@4 pages deploy "dist-web-$TARGET" --project-name "$PAGES_PROJECT" --branch main --commit-dirty=true
+        run: npx --yes wrangler@4 pages deploy "dist-web-$TARGET" --project-name "$PAGES_PROJECT" --branch "${{ github.ref_name }}" --commit-dirty=true

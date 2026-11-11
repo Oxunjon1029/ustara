@@ -48,7 +48,7 @@
     "build:web": "node scripts/build-web.mjs prod",
     "deploy:web": "npm run build:web && npx wrangler@4 pages deploy dist-web-prod --project-name ustara --branch main",
     "build:web:dev": "node scripts/build-web.mjs dev",
-    "deploy:web:dev": "npm run build:web:dev && npx wrangler@4 pages deploy dist-web-dev --project-name ustara-dev --branch main"
+    "deploy:web:dev": "npm run build:web:dev && npx wrangler@4 pages deploy dist-web-dev --project-name ustara-dev --branch stage"
   },
   "private": true
 }

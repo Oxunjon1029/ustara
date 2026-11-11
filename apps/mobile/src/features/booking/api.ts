@@ -111,6 +111,8 @@ export const useMyBookings = (userId: string) =>
 
 export interface DayEntry {
   kind: 'booking' | 'off';
+  /** set on time off; bookings carry it in booking.barber_id */
+  barber_id?: string;
   starts_at: string;
   ends_at: string;
   booking?: BookingRow & { client_name: string | null; client_phone: string | null };
@@ -119,15 +121,18 @@ export interface DayEntry {
 
 /** A barber's bookings and time off for one local day, merged and sorted. */
 /** A barber's bookings (and optionally time off) between two instants, with client names, sorted by time. */
-async function fetchBarberEntries(barberId: string, from: Date, to: Date, withOff: boolean): Promise<DayEntry[]> {
+async function fetchBarberEntries(barberId: string | null, from: Date, to: Date, withOff: boolean): Promise<DayEntry[]> {
+      // barberId null = every barber (admin schedule)
+      const bq = supabase.from('bookings').select(BOOKING_COLS);
+      const oq = supabase.from('time_off').select('id, kind, note, starts_at, ends_at, barber_id');
       const [bk, off] = await Promise.all([
-        supabase.from('bookings').select(BOOKING_COLS).eq('barber_id', barberId)
+        (barberId ? bq.eq('barber_id', barberId) : bq)
           .gte('starts_at', from.toISOString()).lt('starts_at', to.toISOString())
           .not('status', 'in', '(cancelled,expired)').order('starts_at').limit(500),
         withOff
-          ? supabase.from('time_off').select('id, kind, note, starts_at, ends_at').eq('barber_id', barberId)
+          ? (barberId ? oq.eq('barber_id', barberId) : oq)
               .lt('starts_at', to.toISOString()).gt('ends_at', from.toISOString())
-          : Promise.resolve({ data: [] as { id: string; kind: 'break' | 'day_off' | 'vacation'; note: string | null; starts_at: string; ends_at: string }[] }),
+          : Promise.resolve({ data: [] as { id: string; kind: 'break' | 'day_off' | 'vacation'; note: string | null; starts_at: string; ends_at: string; barber_id: string }[] }),
       ]);
       if (bk.error) throw bk.error;
       const rows = bk.data as unknown as BookingRow[];
@@ -148,7 +153,7 @@ async function fetchBarberEntries(barberId: string, from: Date, to: Date, withOf
             client_phone: r.client_id ? who.get(r.client_id)?.phone ?? null : r.walkin_phone,
           },
         })),
-        ...(off.data ?? []).map((o) => ({ kind: 'off' as const, starts_at: o.starts_at, ends_at: o.ends_at, off: o })),
+        ...(off.data ?? []).map((o) => ({ kind: 'off' as const, starts_at: o.starts_at, ends_at: o.ends_at, barber_id: o.barber_id, off: o })),
       ];
       return entries.sort((a, b) => Date.parse(a.starts_at) - Date.parse(b.starts_at));
 }
@@ -169,6 +174,17 @@ export const useBarberRange = (barberId: string | null, fromDate: string, toDate
     queryKey: ['barberDay', 'range', barberId, fromDate, toDate],
     enabled: !!barberId,
     queryFn: () => fetchBarberEntries(barberId!, dayBounds(fromDate).from, dayBounds(toDate).to, false),
+  });
+
+/** Every barber's bookings and time off for one local day (admin). */
+export const useShopDay = (date: string, enabled = true) =>
+  useQuery({
+    queryKey: ['barberDay', 'all', date],
+    enabled,
+    queryFn: () => {
+      const { from, to } = dayBounds(date);
+      return fetchBarberEntries(null, from, to, true);
+    },
   });
 
 export const useMyBarberId = (userId: string) =>

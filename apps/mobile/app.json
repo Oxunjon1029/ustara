@@ -47,6 +47,14 @@
           "icon": "./assets/android-icon-monochrome.png",
           "color": "#1F5F4A"
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Ustara sartarosh rasmini yuklash uchun galereyangizga kirishni soʻraydi.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
       ]
     ],
     "experiments": {

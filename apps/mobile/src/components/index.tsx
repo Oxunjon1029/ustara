@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path, Circle, Rect, Line } from 'react-native-svg';
 import { useTranslation } from 'react-i18next';
@@ -77,7 +77,8 @@ export function Badge({ label }: { label: string }) {
   return <Text style={s.badge}>{label}</Text>;
 }
 
-export function Avatar({ name, size = 56 }: { name: string; size?: number }) {
+export function Avatar({ name, size = 56, uri }: { name: string; size?: number; uri?: string | null }) {
+  if (uri) return <Image source={{ uri }} accessibilityIgnoresInvertColors style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: colors.primarySoft }} />;
   return (
     <View style={[s.avatar, { width: size, height: size }]}>
       <Text style={{ fontFamily: fonts.semibold, color: colors.primary, fontSize: size / 3.5 }}>{name.charAt(0)}</Text>

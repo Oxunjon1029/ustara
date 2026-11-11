@@ -47,3 +47,26 @@ export function whenLabel(iso: string, l: Locale) {
 export const localTime = (iso: string | Date) => utcToTashkent(typeof iso === 'string' ? new Date(iso) : iso).time;
 export const localDate = (iso: string | Date) => utcToTashkent(typeof iso === 'string' ? new Date(iso) : iso).date;
 export const todayLocal = () => utcToTashkent(new Date()).date;
+
+/** 'YYYY-MM-DD' shifted by n days (calendar math in UTC, so no DST surprises). */
+export function addDays(date: string, n: number) {
+  const [y, m, d] = parts(date);
+  return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10);
+}
+/** Monday of the week containing `date`. */
+export const weekStart = (date: string) => addDays(date, -((weekdayOf(date) + 6) % 7));
+/** First day of the month containing `date`. */
+export const monthStart = (date: string) => `${date.slice(0, 8)}01`;
+/** First day of the month `n` months after the one containing `date`. */
+export function addMonths(date: string, n: number) {
+  const [y, m] = parts(date);
+  return new Date(Date.UTC(y, m - 1 + n, 1)).toISOString().slice(0, 10);
+}
+/** "10–16-noyabr" / "28 окт – 3 ноя" style range label. */
+export function rangeLabel(from: string, to: string, l: Locale) {
+  if (from.slice(0, 7) === to.slice(0, 7)) {
+    const [, , d1] = parts(from);
+    return l === 'ru' ? `${d1}–${dayMonth(to, l)}` : `${d1}–${dayMonth(to, l)}`;
+  }
+  return `${dayMonth(from, l)} – ${dayMonth(to, l)}`;
+}

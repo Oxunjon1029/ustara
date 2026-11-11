@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { showDialog } from '../../../src/components/Dialog';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { formatUzs } from '@ustara/shared';
@@ -13,9 +13,9 @@ import { useBarbers } from '../../../src/features/catalog/queries';
 import { currentLocale } from '../../../src/i18n';
 import { localTime, whenLabel } from '../../../src/lib/dates';
 import { isDemo } from '../../../src/lib/supabase';
+import { RateSheet, Stars, useMyReviews } from '../../../src/features/reviews';
+import { useSettings } from '../../../src/features/admin/api';
 import { colors, fonts, type } from '../../../src/theme';
-
-const RESCHEDULE_WINDOW_MS = 2 * 3600_000; // settings.reschedule_window_minutes default
 
 export default function Bookings() {
   const { t } = useTranslation();
@@ -26,6 +26,10 @@ export default function Bookings() {
   const barbers = useBarbers();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
+  const settings = useSettings();
+  const RESCHEDULE_WINDOW_MS = (settings.data?.reschedule_window_minutes ?? 120) * 60_000;
+  const { rate } = useLocalSearchParams<{ rate?: string }>();
+  const [rating, setRating] = useState<BookingRow | null>(null);
 
   const now = Date.now();
   const all = bookings.data ?? [];
@@ -34,6 +38,15 @@ export default function Bookings() {
   const list = tab === 'upcoming' ? upcoming : past;
   const barberName = (id: string) => barbers.data?.find((b) => b.id === id)?.full_name ?? '';
   const name = (b: BookingRow) => (locale === 'ru' ? b.service.name_ru : b.service.name_uz);
+  const reviews = useMyReviews(past.filter((b) => b.status === 'completed').map((b) => b.id));
+
+  // Opened from a 'rate your visit' notification: show that visit's rating sheet once.
+  useEffect(() => {
+    if (!rate || !bookings.data) return;
+    const b = bookings.data.find((x) => x.id === rate && x.status === 'completed');
+    if (b) { setTab('past'); setRating(b); }
+    router.setParams({ rate: undefined });
+  }, [rate, bookings.data]);
 
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: ['myBookings'] });
@@ -93,6 +106,17 @@ export default function Bookings() {
                 <Text style={[type.small, { fontSize: 14, flex: 1 }]}>{t('booking.payAtShopShort')}</Text>
                 <Text style={{ fontFamily: fonts.semibold, fontSize: 14, color: colors.ink, flexShrink: 0 }}>{formatUzs(b.price_uzs, locale)}</Text>
               </View>
+              {b.status === 'completed' && (() => {
+                const r = reviews.data?.get(b.id);
+                return r ? (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                    <Stars value={r.rating} />
+                    <Button variant="outline" size="sm" label={t('reviews.edit')} onPress={() => setRating(b)} style={{ height: 36 }} />
+                  </View>
+                ) : (
+                  <Button size="sm" label={t('reviews.rate')} onPress={() => setRating(b)} />
+                );
+              })()}
               {canChange && (
                 <>
                   <View style={{ flexDirection: 'row', gap: 8 }}>
@@ -125,6 +149,14 @@ export default function Bookings() {
           );
         })}
       </ScrollView>
+      {rating && (
+        <RateSheet
+          bookingId={rating.id}
+          title={`${whenLabel(rating.starts_at, locale)} · ${name(rating)} · ${barberName(rating.barber_id)}`}
+          initial={reviews.data?.get(rating.id)}
+          onDismiss={() => setRating(null)}
+        />
+      )}
     </Screen>
   );
 }

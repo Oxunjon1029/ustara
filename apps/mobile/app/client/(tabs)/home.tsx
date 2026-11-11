@@ -92,9 +92,9 @@ export default function ClientHome() {
                 onPress={() => router.push({ pathname: '/client/barber/[id]', params: { id: b.id } })}
                 style={({ pressed }) => [s.barber, pressed && { opacity: 0.85 }]}
               >
-                <Avatar name={b.full_name} />
+                <Avatar name={b.full_name} uri={b.photo_url} />
                 <Text style={[s.rowTitle, { fontSize: 14 }]} numberOfLines={1}>{b.full_name}</Text>
-                <Text style={{ fontFamily: fonts.body, fontSize: 12, color: colors.inkMuted }}>★ {b.rating_avg.toFixed(1)}</Text>
+                <Text style={{ fontFamily: fonts.body, fontSize: 12, color: colors.inkMuted }}>{b.rating_avg > 0 ? `★ ${b.rating_avg.toFixed(1)}` : t('reviews.new')}</Text>
               </Pressable>
             ))}
           </View>

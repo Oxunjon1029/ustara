@@ -9,6 +9,7 @@ import { supabase } from '../../lib/supabase';
 import { colors, fonts, radius, type } from '../../theme';
 import { bookingActions, type DayEntry } from './api';
 import { bookingErrorText, StatusPill, statusTone } from './components';
+import { formatPhone } from '../../lib/phone';
 
 /** Timeline of a barber's day: bookings with Completed / No-show actions, and time off. */
 export function DayList({ entries }: { entries: DayEntry[] }) {
@@ -18,7 +19,9 @@ export function DayList({ entries }: { entries: DayEntry[] }) {
   const now = Date.now();
   const nextId = entries.find((e) => e.booking?.status === 'confirmed' && Date.parse(e.ends_at) > now)?.booking?.id;
 
-  const refresh = () => queryClient.invalidateQueries({ queryKey: ['barberDay'] });
+  const refresh = () => {
+    for (const key of ['barberDay', 'earnings', 'adminReport']) queryClient.invalidateQueries({ queryKey: [key] });
+  };
   const run = async (p: Promise<string | null>) => {
     const err = await p;
     if (err) showDialog(bookingErrorText(t, err) ?? '');
@@ -29,7 +32,7 @@ export function DayList({ entries }: { entries: DayEntry[] }) {
     const b = e.booking!;
     const buttons: DialogButton[] = [];
     if (b.client_phone) {
-      buttons.push({ text: b.client_phone, icon: <Icon name="phone" color="#fff" size={18} />, onPress: () => Linking.openURL(`tel:${b.client_phone}`) });
+      buttons.push({ text: formatPhone(b.client_phone), icon: <Icon name="phone" color="#fff" size={18} />, onPress: () => Linking.openURL(`tel:${b.client_phone}`) });
     }
     if (b.status === 'confirmed' && Date.parse(b.starts_at) > now) {
       buttons.push({ text: t('booking.cancel'), style: 'destructive', onPress: () => run(bookingActions.cancel(b.id)) });

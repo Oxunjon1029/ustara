@@ -87,7 +87,7 @@ npx supabase functions deploy notify-dispatch --remote=<ref>
 1. **Foundations** ✅ monorepo, i18n, theme, Sentry, schema + RLS + seed, shared logic with tests, role gate
 2. **Authentication** ✅ password + Telegram bot sign-in, linking, phone verification, reset via bot
 3. **Booking and scheduling** ✅ client booking flow, barber profiles, reschedule/cancel, barber Today/Calendar, walk-ins, time off, hours, no-show limit
-4. **Notifications** Telegram bot messages for booking events and reminders; in-app bell list (phone push ready, off)
-5. Earnings, admin, pilot release
+4. **Notifications** ✅ Telegram bot messages for booking events and reminders; in-app bell list (phone push ready, off)
+5. **Earnings, admin, pilot release** — done: barber earnings, visit ratings, admin dashboard/schedule/reports, admin-created barber logins, barbers/services/fee tiers/users/settings, profile photos. Left: account deletion, privacy/terms, production server, store builds
 6. Payme and payouts (Phase 2)
 7. Click and automation

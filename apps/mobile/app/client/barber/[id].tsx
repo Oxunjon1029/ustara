@@ -5,7 +5,8 @@ import { formatUzs } from '@ustara/shared';
 import { Avatar, Button, Icon, Screen } from '../../../src/components';
 import { useBarberProfile } from '../../../src/features/catalog/queries';
 import { currentLocale } from '../../../src/i18n';
-import { weekdayName } from '../../../src/lib/dates';
+import { localDate, longDate, weekdayName } from '../../../src/lib/dates';
+import { Stars, useBarberReviews } from '../../../src/features/reviews';
 import { colors, fonts, radius, type } from '../../../src/theme';
 
 const WEEK = [1, 2, 3, 4, 5, 6, 0]; // Monday first
@@ -17,6 +18,7 @@ export default function BarberProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const q = useBarberProfile(id);
   const b = q.data;
+  const reviews = useBarberReviews(id);
   const book = (service?: string) =>
     router.push({ pathname: '/client/book', params: service ? { barber: id, service } : { barber: id } });
 
@@ -34,10 +36,10 @@ export default function BarberProfileScreen() {
         <>
           <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 4, gap: 20 }}>
             <View style={{ alignItems: 'center', gap: 8 }}>
-              <Avatar name={b.full_name} size={88} />
+              <Avatar name={b.full_name} size={88} uri={b.photo_url} />
               <Text style={[type.h1, { textAlign: 'center' }]}>{b.full_name}</Text>
               <Text style={type.small}>
-                ★ {b.rating_avg.toFixed(1)} · {t('barberProfile.reviews', { count: b.rating_count })}
+                {b.rating_count > 0 ? `★ ${b.rating_avg.toFixed(1)} · ${t('barberProfile.reviews', { count: b.rating_count })}` : t('reviews.new')}
               </Text>
             </View>
 
@@ -79,6 +81,22 @@ export default function BarberProfileScreen() {
                 ))}
               </View>
             </View>
+
+            {!!reviews.data?.length && (
+              <View style={{ gap: 10 }}>
+                <Text style={type.h2}>{t('reviews.heading')}</Text>
+                {reviews.data.map((r, i) => (
+                  <View key={i} style={[s.list, { padding: 14, gap: 6 }]}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                      <Stars value={r.rating} size={15} />
+                      <Text style={type.small}>{longDate(localDate(r.created_at), locale).split(', ')[1]}</Text>
+                    </View>
+                    {!!r.comment && <Text style={{ fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: colors.ink }}>{r.comment}</Text>}
+                    {!!r.client_name && <Text style={type.small}>{r.client_name}</Text>}
+                  </View>
+                ))}
+              </View>
+            )}
           </ScrollView>
           <View style={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: 12 }}>
             <Button label={t('barberProfile.bookWith', { name: b.full_name })} onPress={() => book()} />

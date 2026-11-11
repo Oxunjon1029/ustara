@@ -9,6 +9,7 @@ import { Field, FormError, PasswordField } from '../../src/components/fields';
 import { useAuth } from '../../src/features/auth/AuthProvider';
 import { errorText } from '../../src/features/auth/errors';
 import { colors, fonts, radius, type } from '../../src/theme';
+import { formatPhone } from '../../src/lib/phone';
 
 type FieldKey = 'full_name' | 'phone' | 'username' | 'password';
 const FIELD_OF: Record<string, FieldKey> = {
@@ -72,8 +73,8 @@ export default function SignUp() {
             returnKeyType="next" submitBehavior="submit" onSubmitEditing={() => refs.phone.current?.focus()}
           />
           <Field
-            ref={refs.phone} id="su-phone" label={t('auth.phone')} value={form.phone} onChangeText={set('phone')} error={errors.phone}
-            keyboardType="phone-pad" autoComplete="tel" textContentType="telephoneNumber"
+            ref={refs.phone} id="su-phone" label={t('auth.phone')} value={form.phone} onChangeText={(v) => set('phone')(formatPhone(v))} error={errors.phone}
+            keyboardType="phone-pad" maxLength={17} placeholder="+998 90 123 45 67" autoComplete="tel" textContentType="telephoneNumber"
             returnKeyType="next" submitBehavior="submit" onSubmitEditing={() => refs.username.current?.focus()}
           />
           <Field

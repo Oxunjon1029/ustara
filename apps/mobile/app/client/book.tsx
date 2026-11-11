@@ -173,7 +173,8 @@ export default function Book() {
               <BarberRow
                 key={b.id}
                 label={b.full_name}
-                sub={`★ ${b.rating_avg.toFixed(1)} · ${t('client.minutes', { count: terms(b.id).duration })} · ${formatUzs(terms(b.id).price, locale)}`}
+                uri={b.photo_url}
+                sub={`${b.rating_avg > 0 ? `★ ${b.rating_avg.toFixed(1)}` : t('reviews.new')} · ${t('client.minutes', { count: terms(b.id).duration })} · ${formatUzs(terms(b.id).price, locale)}`}
                 onPress={() => { setBarberId(b.id); setSlot(null); setStep(2); }}
                 onInfo={() => router.push({ pathname: '/client/barber/[id]', params: { id: b.id } })}
                 infoLabel={t('barberProfile.title')}
@@ -186,7 +187,7 @@ export default function Book() {
           <View style={{ gap: 18 }}>
             {service && (
               <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 }}>
-                <Avatar name={chosenBarber?.full_name ?? '?'} size={40} />
+                <Avatar name={chosenBarber?.full_name ?? '?'} size={40} uri={chosenBarber?.photo_url} />
                 <Text style={{ flex: 1, fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: colors.ink }}>
                   <Text style={{ fontFamily: fonts.semibold }}>{name(service)}</Text>
                   {bid && bid !== ANY ? ` · ${chosenBarber?.full_name ?? ''}` : ''}
@@ -232,7 +233,7 @@ export default function Book() {
           <View style={{ gap: 16 }}>
             <Card style={{ gap: 14 }}>
               <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
-                <Avatar name={chosenBarber?.full_name ?? '?'} size={48} />
+                <Avatar name={chosenBarber?.full_name ?? '?'} size={48} uri={chosenBarber?.photo_url} />
                 <View>
                   <Text style={{ fontFamily: fonts.semibold, fontSize: 16, color: colors.ink }}>{name(service)}</Text>
                   <Text style={type.small}>{t('booking.barber')}: {chosenBarber?.full_name}</Text>
@@ -299,10 +300,10 @@ export default function Book() {
   );
 }
 
-function BarberRow({ label, sub, onPress, onInfo, infoLabel }: { label: string; sub: string; onPress: () => void; onInfo?: () => void; infoLabel?: string }) {
+function BarberRow({ label, sub, onPress, onInfo, infoLabel, uri }: { label: string; sub: string; onPress: () => void; onInfo?: () => void; infoLabel?: string; uri?: string | null }) {
   return (
     <Pressable accessibilityRole="button" onPress={onPress} style={s.barber}>
-      <Avatar name={label} size={44} />
+      <Avatar name={label} size={44} uri={uri} />
       <View style={{ flex: 1 }}>
         <Text style={s.rowTitle}>{label}</Text>
         <Text style={type.small}>{sub}</Text>

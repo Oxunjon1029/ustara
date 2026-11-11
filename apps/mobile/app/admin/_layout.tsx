@@ -1,14 +1,6 @@
-import { RoleTabs } from '../../src/components/RoleTabs';
+import { Stack } from 'expo-router';
 
-export default function AdminLayout() {
-  return (
-    <RoleTabs
-      tabs={[
-        { name: 'dashboard', label: 'tabs.dashboard', icon: 'grid' },
-        { name: 'schedule', label: 'tabs.schedule', icon: 'calendar' },
-        { name: 'manage', label: 'tabs.manage', icon: 'settings' },
-        { name: 'reports', label: 'tabs.reports', icon: 'chart' },
-      ]}
-    />
-  );
+/** Tabs at the bottom of the stack; full-screen flows (booking, walk-in, …) are pushed on top. */
+export default function Layout() {
+  return <Stack screenOptions={{ headerShown: false }} />;
 }

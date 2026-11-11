@@ -1,5 +1,5 @@
-import { useEffect, useRef, type ReactNode } from 'react';
-import { Animated, Modal, PanResponder, Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { Animated, Keyboard, Modal, PanResponder, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../theme';
 
@@ -24,6 +24,14 @@ export function BottomSheet({ onDismiss, children }: { onDismiss: () => void; ch
 function Sheet({ onDismiss, children }: { onDismiss: () => void; children: (close: CloseSheet) => ReactNode }) {
   const insets = useSafeAreaInsets();
   const y = useRef(new Animated.Value(500)).current; // 0 = fully open
+  const [kb, setKb] = useState(0); // keyboard height: the sheet sits on top of the keyboard
+
+  useEffect(() => {
+    const ios = Platform.OS === 'ios';
+    const show = Keyboard.addListener(ios ? 'keyboardWillShow' : 'keyboardDidShow', (e) => setKb(e.endCoordinates.height));
+    const hide = Keyboard.addListener(ios ? 'keyboardWillHide' : 'keyboardDidHide', () => setKb(0));
+    return () => { show.remove(); hide.remove(); };
+  }, []);
 
   useEffect(() => {
     Animated.spring(y, { toValue: 0, useNativeDriver: true, bounciness: 0, speed: 18 }).start();
@@ -50,7 +58,7 @@ function Sheet({ onDismiss, children }: { onDismiss: () => void; children: (clos
   return (
     <View style={{ flex: 1 }}>
       <Pressable style={s.backdrop} onPress={() => close()} />
-      <Animated.View {...pan.panHandlers} accessibilityViewIsModal style={[s.sheet, { paddingBottom: insets.bottom + 16, transform: [{ translateY: y }] }]}>
+      <Animated.View {...pan.panHandlers} accessibilityViewIsModal style={[s.sheet, { bottom: kb, paddingBottom: kb ? 16 : insets.bottom + 16, transform: [{ translateY: y }] }]}>
         <View style={s.handle} />
         {children(close)}
       </Animated.View>

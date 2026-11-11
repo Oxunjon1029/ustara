@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { isDemo, supabase } from '../../lib/supabase';
+import { isDemo, photoUrl, supabase } from '../../lib/supabase';
 
 export interface Service { id: string; name_uz: string; name_ru: string; duration_min: number; price_uzs: number; buffer_min?: number }
-export interface Barber { id: string; full_name: string; rating_avg: number }
+export interface Barber { id: string; full_name: string; rating_avg: number; photo_url?: string | null }
 export interface NextBooking { id: string; starts_at: string; status: string; price_uzs: number; barber_name: string; service: Service }
 
 const DEMO_SERVICES: Service[] = [
@@ -36,11 +36,11 @@ export const useBarbers = () =>
     queryKey: ['barbers'],
     queryFn: async (): Promise<Barber[]> => {
       if (isDemo) return DEMO_BARBERS;
-      const { data: barbers, error } = await supabase.from('barbers').select('id, user_id, rating_avg').eq('is_active', true);
+      const { data: barbers, error } = await supabase.from('barbers').select('id, user_id, rating_avg, photo_path').eq('is_active', true);
       if (error) throw error;
       const { data: profiles } = await supabase.from('profiles').select('user_id, full_name').in('user_id', barbers.map((b) => b.user_id));
       const name = new Map(profiles?.map((p) => [p.user_id, p.full_name]));
-      return barbers.map((b) => ({ id: b.id, full_name: name.get(b.user_id) ?? '', rating_avg: Number(b.rating_avg) }));
+      return barbers.map((b) => ({ id: b.id, full_name: name.get(b.user_id) ?? '', rating_avg: Number(b.rating_avg), photo_url: photoUrl(b.photo_path) }));
     },
   });
 
@@ -83,6 +83,7 @@ export interface BarberProfile {
   bio: { uz: string | null; ru: string | null };
   rating_avg: number;
   rating_count: number;
+  photo_url?: string | null;
   services: (Service & { price: number })[];
   /** weekday (0 = Sunday) → 'HH:MM–HH:MM'; missing = day off */
   hours: Record<number, string>;
@@ -102,7 +103,7 @@ export const useBarberProfile = (id: string) =>
           hours: Object.fromEntries([1, 2, 3, 4, 5, 6].map((d) => [d, '10:00–19:00'])),
         };
       }
-      const { data: b, error } = await supabase.from('barbers').select('id, user_id, bio_uz, bio_ru, rating_avg, rating_count').eq('id', id).single();
+      const { data: b, error } = await supabase.from('barbers').select('id, user_id, bio_uz, bio_ru, rating_avg, rating_count, photo_path').eq('id', id).single();
       if (error) throw error;
       const [p, bs, wh] = await Promise.all([
         supabase.from('profiles').select('full_name').eq('user_id', b.user_id).single(),
@@ -118,7 +119,7 @@ export const useBarberProfile = (id: string) =>
       for (const h of wh.data ?? []) hours[h.weekday] = `${h.start_local.slice(0, 5)}–${h.end_local.slice(0, 5)}`;
       return {
         id: b.id, full_name: p.data?.full_name ?? '', bio: { uz: b.bio_uz, ru: b.bio_ru },
-        rating_avg: Number(b.rating_avg), rating_count: b.rating_count, services, hours,
+        rating_avg: Number(b.rating_avg), rating_count: b.rating_count, photo_url: photoUrl(b.photo_path), services, hours,
       };
     },
   });

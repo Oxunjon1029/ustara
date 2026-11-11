@@ -14,6 +14,7 @@ import { useAuth } from '../../src/features/auth/AuthProvider';
 import { currentLocale } from '../../src/i18n';
 import { localTime, todayLocal } from '../../src/lib/dates';
 import { colors, fonts, radius, type } from '../../src/theme';
+import { formatPhone } from '../../src/lib/phone';
 
 const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
 
@@ -66,7 +67,7 @@ export default function Walkin() {
         </View>
 
         <Field id="wi-name" label={t('barber.clientName')} value={name} onChangeText={setName} autoCapitalize="words" />
-        <Field id="wi-phone" label={t('barber.phoneOptional')} hint={t('barber.phoneHint')} value={phone} onChangeText={setPhone} keyboardType="phone-pad" placeholder="+998" />
+        <Field id="wi-phone" label={t('barber.phoneOptional')} hint={t('barber.phoneHint')} value={phone} onChangeText={(v) => setPhone(formatPhone(v))} keyboardType="phone-pad" maxLength={17} placeholder="+998 90 123 45 67" />
 
         <View style={{ gap: 8 }} accessibilityRole="radiogroup">
           <Text style={type.label}>{t('booking.service')}</Text>
